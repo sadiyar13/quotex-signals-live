@@ -1,0 +1,22 @@
+{
+  "name": "سیگنال‌ده هوشمند باینری آپشن فارکس (Quotex)",
+  "short_name": "سیگنال Quotex",
+  "description": "دستیار تحلیلی آنلاین و زنده بازارهای فارکس برای معاملات دستی باینری آپشن در Quotex",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "dir": "rtl",
+  "lang": "fa",
+  "categories": ["finance", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

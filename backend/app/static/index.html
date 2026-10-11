@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>داشبورد هوشمند سیگنال‌دهی باینری آپشن Quotex</title>
+  
+  <!-- PWA & Android Meta Tags -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/svg+xml" href="/static/icon.svg">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+  <style>
+    body { font-family: 'Vazirmatn', sans-serif; -webkit-tap-highlight-color: transparent; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulse-slow { animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white pb-12 sm:pb-0">
+
+  <!-- ANDROID PWA INSTALL PROMPT BANNER -->
+  <div id="pwaBanner" class="hidden bg-gradient-to-r from-blue-900/90 via-indigo-900/90 to-purple-900/90 border-b border-indigo-700/50 px-4 py-2 text-xs flex items-center justify-between gap-3 shadow-lg">
+    <div class="flex items-center gap-2">
+      <span class="text-lg">📱</span>
+      <span><strong>نسخه اختصاصی اندروید:</strong> نصب مستقیم روی صفحه اصلی گوشی (آنلاین و زنده بدون نیاز به دانلود فایل)</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="installPwaAction()" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow flex items-center gap-1">
+        ⬇️ نصب اپلیکیشن
+      </button>
+      <button onclick="dismissPwaBanner()" class="text-slate-400 hover:text-white text-base">✕</button>
+    </div>
+  </div>
+
+  <!-- FLOATING NOTIFICATION TOAST -->
+  <div id="signalToast" class="hidden fixed top-4 right-4 z-50 max-w-sm w-full bg-slate-900 border-2 rounded-xl p-4 shadow-2xl transition-all transform duration-300">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span id="toastIcon" class="text-2xl">⚡</span>
+        <div>
+          <h4 id="toastTitle" class="font-bold text-sm text-white">سیگنال معاملاتی جدید</h4>
+          <p id="toastBody" class="text-xs text-slate-300 mt-0.5 leading-relaxed"></p>
+        </div>
+      </div>
+      <button onclick="dismissToast()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+    </div>
+    <div class="mt-3 flex items-center justify-between text-[11px] pt-2 border-t border-slate-800">
+      <span id="toastTime" class="text-slate-400 font-mono">--:--:--</span>
+      <span class="text-cyan-400 font-medium">افق معامله: ۵ دقیقه</span>
+    </div>
+  </div>
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 shadow-md sticky top-0 z-40 backdrop-blur-md bg-slate-900/95">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-inner">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            داشبورد هوشمند سیگنال‌دهی باینری آپشن
+            <span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-normal">
+              Quotex Pro v2.0 Live & Android
+            </span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">
+            دستیار تحلیلی دستی فارکس | ۹ فیلتر کمی | شاخص ترس و طمع | واگرایی و قدرت ارزها
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap text-xs">
+        <!-- Live Status Badge -->
+        <span id="modeBadge" class="px-2.5 py-1 rounded-full font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 pulse-slow"></span>
+          <span id="modeBadgeText">در حال اتصال به بازار...</span>
+        </span>
+
+        <!-- Market Session Badge -->
+        <span id="sessionBadge" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-medium hidden md:inline-flex items-center gap-1">
+          🌐 <span>سشن فارکس: در حال بررسی</span>
+        </span>
+
+        <!-- Audio Alert Toggle -->
+        <button id="btnAudioToggle" onclick="toggleAudioAlert()" class="px-3 py-1 rounded-lg border font-medium transition shadow flex items-center gap-1.5 bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">
+          <span id="audioIcon">🔇</span>
+          <span id="audioText">هشدار صوتی: غیرفعال</span>
+        </button>
+
+        <!-- Android App Info Button -->
+        <button onclick="openAndroidModal()" class="px-2.5 py-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 transition flex items-center gap-1 font-medium" title="راهنمای نسخه اندروید">
+          <span>📱</span> اپلیکیشن اندروید
+        </button>
+
+        <!-- Refresh Button -->
+        <button id="btnRefresh" onclick="analyzeCurrent()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition shadow flex items-center gap-1">
+          🔄 تحلیل مجدد (<span id="autoRefreshCounter" class="font-mono">10</span>s)
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation & Symbol Bar -->
+    <div class="bg-slate-950/70 border-t border-slate-800/60 px-4 py-2.5">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+        <nav class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 text-xs overflow-x-auto max-w-full">
+          <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3.5 py-1.5 rounded-md font-medium transition bg-blue-600 text-white whitespace-nowrap">
+            📊 تحلیل زنده و سیگنال‌ها
+          </button>
+          <button onclick="switchTab('backtest')" id="tabBtnBacktest" class="px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
+            🧪 موتور بکتست ۳ دوره‌ای
+          </button>
+          <button onclick="switchTab('analytics')" id="tabBtnAnalytics" class="px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
+            📈 ژورنال و نتایج Quotex
+          </button>
+          <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
+            ⚙️ تنظیمات استراتژی
+          </button>
+        </nav>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs overflow-x-auto">
+            <span class="text-slate-400 px-2 font-medium">جفت‌ارز فارکس:</span>
+            <div id="symbolButtons" class="flex items-center gap-1"></div>
+          </div>
+
+          <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+            <button onclick="selectTimeframe('M1')" id="tf_M1" class="px-2.5 py-1 rounded font-mono font-medium bg-cyan-600 text-white">M1</button>
+            <button onclick="selectTimeframe('M5')" id="tf_M5" class="px-2.5 py-1 rounded font-mono font-medium text-slate-400 hover:bg-slate-800">M5</button>
+            <button onclick="selectTimeframe('M15')" id="tf_M15" class="px-2.5 py-1 rounded font-mono font-medium text-slate-400 hover:bg-slate-800">M15</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-6">
+
+    <!-- 1. DASHBOARD TAB -->
+    <div id="tabDashboard" class="space-y-6">
+      
+      <!-- Top Intelligence Cards (Fear & Greed Index + Currency Strength Meter) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <!-- Fear & Greed Index Gauge Widget -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+              <span>🧭</span> شاخص احساسات و ترس و طمع فارکس (Fear & Greed)
+            </h3>
+            <span id="fgStateBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-300">
+              --
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 py-3">
+            <!-- Radial SVG Gauge -->
+            <div class="relative w-28 h-28 flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="#1e293b" stroke-width="10" fill="none" />
+                <circle id="fgGaugeCircle" cx="50" cy="50" r="40" stroke="#06b6d4" stroke-width="10" stroke-linecap="round" fill="none" stroke-dasharray="251.2" stroke-dashoffset="125.6" class="transition-all duration-700 ease-out" />
+              </svg>
+              <div class="absolute flex flex-col items-center justify-center">
+                <span id="fgScoreEl" class="text-2xl font-black font-mono text-white">50</span>
+                <span class="text-[9px] text-slate-400">از ۱۰۰</span>
+              </div>
+            </div>
+
+            <!-- Description & Sub-scores -->
+            <div class="flex-1 text-[11px] space-y-1.5">
+              <div id="fgDescEl" class="text-slate-300 leading-relaxed text-[11px]">
+                در حال ارزیابی داده‌های احساسی...
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[10px] text-slate-400 pt-1 font-mono">
+                <div>RSI Extreme: <span id="fgRsiSub" class="text-white font-bold">--</span></div>
+                <div>انحراف EMA: <span id="fgEmaSub" class="text-white font-bold">--</span></div>
+                <div>باند بولینگر: <span id="fgBbSub" class="text-white font-bold">--</span></div>
+                <div>نوسان ATR: <span id="fgVolSub" class="text-white font-bold">--</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Currency Strength Meter (CSM) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+              <span>💪</span> سنجش موازنه قدرت ارزها (Currency Strength Meter)
+            </h3>
+            <span class="text-[10px] text-slate-400 font-mono">مقیاس ۰ تا ۱۰</span>
+          </div>
+          <div id="csmBarsContainer" class="grid grid-cols-4 gap-2 pt-3 text-[11px]">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Session Liquidity & Micro-Timing Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+              <span>⏱️</span> زمان‌بندی ورود و سشن نقدینگی
+            </h3>
+            <span id="sessionTierBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-950 text-indigo-400 border border-indigo-800/50">سشن لندن/نیویورک</span>
+          </div>
+          <div class="space-y-2.5 pt-3 text-xs leading-relaxed text-slate-300">
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-[11px]">
+              <strong class="text-cyan-400">💡 قانون طلایی ورود در کیوتکس:</strong>
+              <p class="text-slate-400 mt-1">
+                برای جلوگیری از خطای اسلیپیج ثانیه‌ای، دقیقاً در <strong>ثانیه ۰ تا ۵ شروع کندل جدید</strong> معامله دستی ثبت نمایید.
+              </p>
+            </div>
+            <div id="sessionExplanationEl" class="text-[11px] text-slate-400 leading-relaxed">
+              بررسی حجم معاملات بازار بر مبنای سشن‌های فعال...
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Chart and Signal Card Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Chart Container -->
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-lg flex flex-col h-[460px]">
+          <div class="flex justify-between items-center px-3 py-2 border-b border-slate-800 text-xs mb-2">
+            <div class="flex items-center gap-3">
+              <span id="chartSymbolTitle" class="font-bold text-slate-100 text-sm">EUR/USD</span>
+              <span id="chartTfTitle" class="px-2 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono">M1</span>
+              <span id="chartSourceTitle" class="text-slate-400 text-[11px]">منبع: جریان رسمی بازار بین‌بانکی</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-400 text-xs">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>صعودی</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>نزولی</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-cyan-400"></span>آخرین مظنه</span>
+            </div>
+          </div>
+          <div class="flex-1 relative w-full">
+            <canvas id="candleCanvas" class="w-full h-full block"></canvas>
+          </div>
+        </div>
+
+        <!-- Latest Signal Card -->
+        <div id="signalCardContainer" class="lg:col-span-1">
+          <!-- Dynamic signal card renders here -->
+        </div>
+      </div>
+
+      <!-- 9 Filters Accordion -->
+      <div id="filtersContainer" class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg"></div>
+
+      <!-- Recent Signals Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+            <span>📜</span> تاریخچه و ژورنال سیگنال‌های اخیر
+          </h3>
+          <div class="flex items-center gap-2 text-xs">
+            <select id="filterSymSelect" onchange="filterRecentSignals()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300">
+              <option value="ALL">همه جفت‌ارزها</option>
+            </select>
+            <select id="filterDirSelect" onchange="filterRecentSignals()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300">
+              <option value="ALL">همه جهات</option>
+              <option value="CALL">فقط CALL</option>
+              <option value="PUT">فقط PUT</option>
+              <option value="NO TRADE">فقط NO TRADE</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto mt-3">
+          <table class="w-full text-right text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-2.5 px-3">زمان (UTC)</th>
+                <th class="py-2.5 px-3">جفت‌ارز</th>
+                <th class="py-2.5 px-3">جهت</th>
+                <th class="py-2.5 px-3">قیمت مرجع</th>
+                <th class="py-2.5 px-3">امتیاز توافق</th>
+                <th class="py-2.5 px-3">ارزیابی بازار (Paper)</th>
+                <th class="py-2.5 px-3">نتیجه در Quotex</th>
+                <th class="py-2.5 px-3 text-center">عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="recentSignalsTbody" class="divide-y divide-slate-800/60 font-mono"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. BACKTEST TAB -->
+    <div id="tabBacktest" class="hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span>🧪</span> موتور بکتست مستقل با بازپخش زمانی (Zero Lookahead)
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              شبیه‌سازی دقیق و بدون نگاه به آینده بر مبنای افق ارزیابی ۵ دقیقه‌ای باینری آپشن بر روی داده‌های تاریخی واقعی
+            </p>
+          </div>
+          <button onclick="runBacktestAction()" id="btnRunBt" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-md">
+            ▶ اجرای بکتست
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4 text-xs">
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">جفت‌ارز:</label>
+            <select id="btSymbol" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-mono"></select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">دوره زمانی تست:</label>
+            <select id="btPeriod" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white">
+              <option value="DEVELOPMENT">۱. دوره توسعه و طراحی (۶۰٪ نخست)</option>
+              <option value="VALIDATION">۲. دوره اعتبارسنجی (۲۰٪ میانی)</option>
+              <option value="OUT_OF_SAMPLE">۳. دوره آزمون دست‌نخورده (۲۰٪ پایانی)</option>
+              <option value="FULL">کل تاریخچه کندل‌ها (۱۰۰٪)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">درصد سود خالص پرداخت (Payout %):</label>
+            <input type="number" id="btPayout" step="0.01" value="0.85" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">حدنصاب توافق فیلترها:</label>
+            <select id="btMinAgree" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white">
+              <option value="3">حداقل ۳ از ۵ فیلتر</option>
+              <option value="4" selected>حداقل ۴ از ۵ فیلتر (توصیه‌شده)</option>
+              <option value="5">تطابق هر ۵ فیلتر</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="btResultsContainer" class="hidden space-y-6"></div>
+    </div>
+
+    <!-- 3. ANALYTICS TAB -->
+    <div id="tabAnalytics" class="hidden space-y-6">
+      <div id="analyticsContent" class="space-y-6"></div>
+    </div>
+
+    <!-- 4. SETTINGS TAB -->
+    <div id="tabSettings" class="hidden max-w-4xl mx-auto space-y-6">
+      <div id="settingsContent"></div>
+    </div>
+  </main>
+
+  <!-- ANDROID APP MODAL -->
+  <div id="androidModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative text-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <span>📱</span> راهنمای نسخه اندروید (Android Mobile Companion)
+        </h3>
+        <button onclick="closeAndroidModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4 my-4 text-xs leading-relaxed">
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-emerald-400 text-sm mb-1.5">روش اول: نصب مستقیم PWA (بدون نیاز به دانلود)</h4>
+          <p class="text-slate-300">
+            ۱. در مرورگر Chrome گوشی اندروید، همین آدرس را باز کنید.<br>
+            ۲. روی سه نقطه بالای مرورگر بزنید و <strong>«نصب برنامه» (Install app)</strong> را انتخاب کنید.<br>
+            ۳. اپلیکیشن با آیکون اختصاصی و لرزش ویبره هنگام سیگنال روی گوشی شما قرار می‌گیرد.
+          </p>
+        </div>
+
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-cyan-400 text-sm mb-1.5">روش دوم: دانلود مستقیم فایل نصبی APK</h4>
+          <p class="text-slate-300 mb-3">
+            فایل کامپایل‌شده اپلیکیشن نیتیو اندروید با سرعت فوق‌العاده و اعلان ویبره هوشمند آماده دانلود است.
+          </p>
+          <a href="/static/Quotex_Signals.apk" download class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow">
+            <span>📥</span> دانلود فایل نصبی Quotex_Signals.apk (۵.۶ مگابایت)
+          </a>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+        <a href="/static/Quotex_Signals.apk" download class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+          <span>📥</span> دانلود مستقیم APK
+        </a>
+        <button onclick="closeAndroidModal()" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs">متوجه شدم</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL OUTCOME MODAL -->
+  <div id="manualModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative text-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <span>📝</span> ثبت دستی نتیجه معامله در Quotex
+        </h3>
+        <button onclick="closeManualModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-400 my-3 leading-relaxed">
+        برای ارزیابی و سنجش میزان انحراف مظنه، قیمتها و نتیجه واقعی را که در پلتفرم Quotex مشاهده کرده‌اید وارد کنید.
+      </p>
+
+      <form onsubmit="submitManualForm(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="modalSignalId">
+        <div id="modalSignalSummary" class="p-2 bg-slate-950 rounded border border-slate-800 text-slate-300 font-mono"></div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">قیمت ورود در Quotex:</label>
+            <input type="number" step="any" id="modalEntryPrice" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">قیمت بسته شدن در Quotex:</label>
+            <input type="number" step="any" id="modalExpiryPrice" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">نتیجه اعلامی شما:</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selectModalOutcome('WIN')" id="btnWin" class="py-2 rounded-lg font-bold border bg-emerald-600 text-white border-emerald-500">برد (WIN)</button>
+            <button type="button" onclick="selectModalOutcome('LOSS')" id="btnLoss" class="py-2 rounded-lg font-bold border bg-slate-950 text-slate-400 border-slate-800">باخت (LOSS)</button>
+            <button type="button" onclick="selectModalOutcome('TIE')" id="btnTie" class="py-2 rounded-lg font-bold border bg-slate-950 text-slate-400 border-slate-800">مساوی (TIE)</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">منبع قیمت:</label>
+          <input type="text" id="modalPriceSource" value="Quotex Web Platform (مشاهده دستی)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">یادداشت تحلیلگر:</label>
+          <textarea id="modalNotes" rows="2" placeholder="توضیحات اختیاری..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeManualModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">انصراف</button>
+          <button type="submit" id="btnSubmitManual" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium">ثبت در ژورنال</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // State management
+    let currentSymbol = 'EUR/USD';
+    let currentTimeframe = 'M1';
+    let currentSignal = null;
+    let rawSignalsList = [];
+    let modalOutcomeChoice = 'WIN';
+    let countdownTimer = null;
+    let autoRefreshTimer = null;
+    let autoRefreshCount = 10;
+    let lastSignalId = null;
+    let audioAlertEnabled = false;
+    let audioCtx = null;
+    let deferredPwaPrompt = null;
+
+    const symbols = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CHF', 'USD/CAD', 'NZD/USD'];
+
+    // Web Audio API Synthesizer (Zero External File Dependencies)
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playChime(type) {
+      // Haptic Vibration for Android devices
+      if ('vibrate' in navigator) {
+        try {
+          if (type === 'CALL') {
+            navigator.vibrate([150, 80, 250]);
+          } else if (type === 'PUT') {
+            navigator.vibrate([350]);
+          }
+        } catch (e) {}
+      }
+
+      // Android Kotlin Bridge vibration
+      if (window.AndroidBridge && typeof window.AndroidBridge.vibrateSignal === 'function') {
+        try { window.AndroidBridge.vibrateSignal(type); } catch (e) {}
+      }
+
+      if (!audioAlertEnabled) return;
+      try {
+        initAudioContext();
+        if (!audioCtx) return;
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'CALL') {
+          // Ascending dual tone for CALL (C5 523Hz -> E5 659Hz)
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'PUT') {
+          // Descending dual tone for PUT (E5 659Hz -> A4 440Hz)
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(659.25, now);
+          osc.frequency.exponentialRampToValueAtTime(440.0, now + 0.18);
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+          osc.start(now);
+          osc.stop(now + 0.45);
+        }
+      } catch (err) {
+        console.warn('Audio play failed:', err);
+      }
+    }
+
+    function toggleAudioAlert() {
+      initAudioContext();
+      audioAlertEnabled = !audioAlertEnabled;
+      const btn = document.getElementById('btnAudioToggle');
+      const icon = document.getElementById('audioIcon');
+      const text = document.getElementById('audioText');
+
+      if (audioAlertEnabled) {
+        btn.className = 'px-3 py-1 rounded-lg border font-medium transition shadow flex items-center gap-1.5 bg-emerald-950/40 text-emerald-300 border-emerald-600 hover:bg-emerald-900/60';
+        icon.textContent = '🔊';
+        text.textContent = 'هشدار صوتی: فعال';
+        playChime('CALL');
+      } else {
+        btn.className = 'px-3 py-1 rounded-lg border font-medium transition shadow flex items-center gap-1.5 bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700';
+        icon.textContent = '🔇';
+        text.textContent = 'هشدار صوتی: غیرفعال';
+      }
+    }
+
+    function showToast(sig) {
+      const toast = document.getElementById('signalToast');
+      const icon = document.getElementById('toastIcon');
+      const title = document.getElementById('toastTitle');
+      const body = document.getElementById('toastBody');
+      const time = document.getElementById('toastTime');
+
+      const isCall = sig.direction === 'CALL';
+      const isPut = sig.direction === 'PUT';
+      if (!isCall && !isPut) return;
+
+      toast.className = `fixed top-4 right-4 z-50 max-w-sm w-full bg-slate-900 border-2 rounded-xl p-4 shadow-2xl transition-all transform duration-300 ${isCall ? 'border-emerald-500 shadow-emerald-950/40' : 'border-rose-500 shadow-rose-950/40'}`;
+      icon.textContent = isCall ? '🟢' : '🔴';
+      title.textContent = `سیگنال ${sig.direction} صادر شد (${sig.symbol})`;
+      body.textContent = `قیمت مرجع: ${sig.entry_price} | توافق فیلترها: ${sig.rule_agreement_score}%`;
+      time.textContent = new Date(sig.created_at).toLocaleTimeString();
+
+      toast.classList.remove('hidden');
+      playChime(sig.direction);
+
+      setTimeout(() => {
+        dismissToast();
+      }, 12000);
+    }
+
+    function dismissToast() {
+      const toast = document.getElementById('signalToast');
+      if (toast) toast.classList.add('hidden');
+    }
+
+    function openAndroidModal() {
+      document.getElementById('androidModal').classList.remove('hidden');
+    }
+
+    function closeAndroidModal() {
+      document.getElementById('androidModal').classList.add('hidden');
+    }
+
+    // PWA Install handlers
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      document.getElementById('pwaBanner').classList.remove('hidden');
+    });
+
+    function installPwaAction() {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then(res => {
+          deferredPwaPrompt = null;
+          dismissPwaBanner();
+        });
+      } else {
+        openAndroidModal();
+      }
+    }
+
+    function dismissPwaBanner() {
+      document.getElementById('pwaBanner').classList.add('hidden');
+    }
+
+    function initHeader() {
+      const container = document.getElementById('symbolButtons');
+      const filterSelect = document.getElementById('filterSymSelect');
+      const btSelect = document.getElementById('btSymbol');
+
+      container.innerHTML = '';
+      symbols.forEach(sym => {
+        const btn = document.createElement('button');
+        btn.textContent = sym;
+        btn.id = `btn_sym_${sym.replace('/', '_')}`;
+        btn.className = `px-2.5 py-1 rounded font-mono font-medium transition ${sym === currentSymbol ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800'}`;
+        btn.onclick = () => selectSymbol(sym);
+        container.appendChild(btn);
+
+        const opt = document.createElement('option');
+        opt.value = sym;
+        opt.textContent = sym;
+        filterSelect.appendChild(opt);
+
+        const btOpt = document.createElement('option');
+        btOpt.value = sym;
+        btOpt.textContent = sym;
+        btSelect.appendChild(btOpt);
+      });
+    }
+
+    function switchTab(tab) {
+      ['dashboard', 'backtest', 'analytics', 'settings'].forEach(t => {
+        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.add('hidden');
+        document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).className = 'px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap';
+      });
+
+      document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.remove('hidden');
+      document.getElementById(`tabBtn${tab.charAt(0).toUpperCase() + tab.slice(1)}`).className = 'px-3.5 py-1.5 rounded-md font-medium transition bg-blue-600 text-white whitespace-nowrap';
+
+      if (tab === 'analytics') loadAnalytics();
+      if (tab === 'settings') loadSettings();
+    }
+
+    function selectSymbol(sym) {
+      currentSymbol = sym;
+      symbols.forEach(s => {
+        const btn = document.getElementById(`btn_sym_${s.replace('/', '_')}`);
+        if (btn) btn.className = `px-2.5 py-1 rounded font-mono font-medium transition ${s === currentSymbol ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800'}`;
+      });
+      document.getElementById('chartSymbolTitle').textContent = sym;
+      loadCandles();
+      analyzeCurrent();
+    }
+
+    function selectTimeframe(tf) {
+      currentTimeframe = tf;
+      ['M1', 'M5', 'M15'].forEach(t => {
+        const btn = document.getElementById(`tf_${t}`);
+        if (btn) btn.className = `px-2.5 py-1 rounded font-mono font-medium transition ${t === tf ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800'}`;
+      });
+      document.getElementById('chartTfTitle').textContent = tf;
+      loadCandles();
+      analyzeCurrent();
+    }
+
+    async function fetchMarketStatus() {
+      try {
+        const res = await fetch('/api/market/status');
+        const st = await res.json();
+
+        const badge = document.getElementById('modeBadge');
+        const badgeText = document.getElementById('modeBadgeText');
+        const session = document.getElementById('sessionBadge');
+        const chartSource = document.getElementById('chartSourceTitle');
+
+        if (st.status === 'LIVE') {
+          badge.className = 'px-2.5 py-1 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5';
+          badgeText.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-slow"></span> جریان زنده Twelve Data';
+          chartSource.textContent = 'منبع: Twelve Data Live Stream (رسمی)';
+        } else if (st.status === 'REAL_DELAYED') {
+          badge.className = 'px-2.5 py-1 rounded-full font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5';
+          badgeText.innerHTML = '<span class="w-2 h-2 rounded-full bg-cyan-400 pulse-slow"></span> داده بین‌بانکی رسمی (Real Interbank)';
+          chartSource.textContent = 'منبع: فید رسمی بین‌بانکی فارکس (Cboe/Yahoo)';
+        } else if (st.status === 'MARKET_CLOSED') {
+          badge.className = 'px-2.5 py-1 rounded-full font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5';
+          badgeText.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span> بازار رسمی فارکس بسته است (آخر هفته)';
+          chartSource.textContent = 'منبع: آخرین کندل‌های رسمی هفته (جمعه شب)';
+        }
+
+        if (st.market_hours_info) {
+          const sessions = st.market_hours_info.active_sessions || [];
+          if (st.market_hours_info.is_open && sessions.length > 0) {
+            session.innerHTML = `🌐 <span>سشن فعال: ${sessions.join(' و ')}</span>`;
+          } else {
+            session.innerHTML = `🌙 <span class="text-amber-400">تعطیلات آخر هفته فارکس</span>`;
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching market status:', err);
+      }
+    }
+
+    async function loadCandles() {
+      try {
+        const res = await fetch(`/api/market/candles?symbol=${encodeURIComponent(currentSymbol)}&timeframe=${currentTimeframe}&count=100`);
+        const candles = await res.json();
+        drawCandleChart(candles);
+      } catch (e) {
+        console.error('Candle load error:', e);
+      }
+    }
+
+    function drawCandleChart(candles) {
+      const canvas = document.getElementById('candleCanvas');
+      if (!canvas || !candles || candles.length === 0) return;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      const padRight = 75;
+      const padBottom = 25;
+      const padTop = 15;
+      const chartW = w - padRight;
+      const chartH = h - padBottom - padTop;
+
+      ctx.fillStyle = '#0B0F19';
+      ctx.fillRect(0, 0, w, h);
+
+      let minP = Infinity, maxP = -Infinity;
+      candles.forEach(c => {
+        if (c.low < minP) minP = c.low;
+        if (c.high > maxP) maxP = c.high;
+      });
+
+      const range = maxP - minP || 0.001;
+      minP -= range * 0.08;
+      maxP += range * 0.08;
+      const effRange = maxP - minP;
+
+      const getY = p => padTop + chartH - ((p - minP) / effRange) * chartH;
+
+      // Price Grid Lines
+      ctx.strokeStyle = '#1E293B';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const pVal = minP + (effRange / 5) * i;
+        const y = getY(pVal);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(chartW, y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(pVal.toFixed(currentSymbol.includes('JPY') ? 3 : 5), chartW + 8, y + 3);
+      }
+
+      // Draw Candlesticks
+      const n = candles.length;
+      const sp = chartW / n;
+      const bw = Math.max(2.5, sp * 0.7);
+
+      candles.forEach((c, i) => {
+        const x = i * sp + sp / 2;
+        const oy = getY(c.open);
+        const cy = getY(c.close);
+        const hy = getY(c.high);
+        const ly = getY(c.low);
+        const bull = c.close >= c.open;
+        const col = bull ? '#10B981' : '#EF4444';
+
+        // Wick
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x, hy);
+        ctx.lineTo(x, ly);
+        ctx.stroke();
+
+        // Body
+        ctx.fillStyle = col;
+        ctx.fillRect(x - bw / 2, Math.min(oy, cy), bw, Math.max(2, Math.abs(cy - oy)));
+
+        if (i % Math.ceil(n / 6) === 0) {
+          ctx.fillStyle = '#64748B';
+          ctx.font = '9px monospace';
+          ctx.textAlign = 'center';
+          const dt = new Date(c.timestamp);
+          ctx.fillText(`${String(dt.getUTCHours()).padStart(2,'0')}:${String(dt.getUTCMinutes()).padStart(2,'0')}`, x, h - 8);
+        }
+      });
+
+      // Last price line & marker
+      const last = candles[candles.length - 1];
+      const lY = getY(last.close);
+      ctx.strokeStyle = '#0284C7';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(0, lY);
+      ctx.lineTo(chartW, lY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#0284C7';
+      ctx.fillRect(chartW, lY - 9, padRight, 18);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(last.close.toFixed(currentSymbol.includes('JPY') ? 3 : 5), chartW + 37, lY + 4);
+    }
+
+    async function analyzeCurrent() {
+      const btn = document.getElementById('btnRefresh');
+      btn.textContent = 'در حال تحلیل...';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/signals/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ symbol: currentSymbol, timeframe: currentTimeframe })
+        });
+        currentSignal = await res.json();
+        renderSignalCard(currentSignal);
+        renderFilters(currentSignal.filters || []);
+        renderFearAndGreed(currentSignal.fear_and_greed);
+        renderCsmWidget(currentSignal.currency_strength);
+        loadRecentSignals();
+        fetchMarketStatus();
+
+        // Play audio & show toast on newly generated CALL or PUT signal
+        if (currentSignal && currentSignal.direction !== 'NO TRADE') {
+          if (lastSignalId !== currentSignal.id) {
+            lastSignalId = currentSignal.id;
+            showToast(currentSignal);
+          }
+        }
+      } catch (e) {
+        console.error('Analyze error:', e);
+      } finally {
+        btn.textContent = `🔄 تحلیل مجدد (${autoRefreshCount}s)`;
+        btn.disabled = false;
+      }
+    }
+
+    function renderFearAndGreed(fg) {
+      if (!fg) return;
+      const score = fg.score || 50;
+      const scoreEl = document.getElementById('fgScoreEl');
+      const badgeEl = document.getElementById('fgStateBadge');
+      const descEl = document.getElementById('fgDescEl');
+      const circleEl = document.getElementById('fgGaugeCircle');
+
+      scoreEl.textContent = Math.round(score);
+      badgeEl.textContent = fg.state_fa || fg.state;
+      badgeEl.style.backgroundColor = `${fg.color}20`;
+      badgeEl.style.color = fg.color;
+      badgeEl.style.borderColor = `${fg.color}40`;
+      descEl.textContent = fg.description;
+
+      // Stroke dashoffset: 251.2 * (1 - score / 100)
+      const offset = 251.2 * (1.0 - score / 100.0);
+      circleEl.style.strokeDashoffset = offset;
+      circleEl.style.stroke = fg.color;
+
+      if (fg.components) {
+        document.getElementById('fgRsiSub').textContent = fg.components.rsi_score;
+        document.getElementById('fgEmaSub').textContent = fg.components.trend_distance_score;
+        document.getElementById('fgBbSub').textContent = fg.components.bollinger_position_score;
+        document.getElementById('fgVolSub').textContent = fg.components.volatility_score;
+      }
+    }
+
+    function renderCsmWidget(csm) {
+      const container = document.getElementById('csmBarsContainer');
+      if (!csm || !csm.ranking) return;
+
+      container.innerHTML = csm.ranking.map(item => {
+        const pct = Math.min(100, Math.max(5, (item.strength / 10.0) * 100));
+        const col = item.strength >= 6.5 ? 'bg-emerald-500' : item.strength <= 3.5 ? 'bg-rose-500' : 'bg-cyan-500';
+        return `
+          <div class="bg-slate-950 p-2 rounded border border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between font-mono font-bold mb-1">
+              <span class="text-white">${item.currency}</span>
+              <span class="text-slate-400">${item.strength}</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="${col} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSignalCard(sig) {
+      const box = document.getElementById('signalCardContainer');
+      if (!sig) return;
+
+      const isCall = sig.direction === 'CALL';
+      const isPut = sig.direction === 'PUT';
+      const borderClass = isCall ? 'border-emerald-500/50 bg-emerald-950/20' : isPut ? 'border-rose-500/50 bg-rose-950/20' : 'border-slate-800 bg-slate-900';
+      const badgeClass = isCall ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : isPut ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/50' : 'bg-slate-800 text-slate-300';
+      const dirText = isCall ? '▲ CALL (خرید ۵ دقیقه)' : isPut ? '▼ PUT (فروش ۵ دقیقه)' : '⛔ NO TRADE (عدم ورود)';
+
+      box.innerHTML = `
+        <div class="rounded-xl border p-5 shadow-xl ${borderClass}">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
+            <div class="px-3 py-1.5 rounded-lg font-black text-lg ${badgeClass}">
+              ${dirText}
+            </div>
+            <div class="text-left font-mono">
+              <div class="text-[11px] text-slate-400">امتیاز توافق قوانین:</div>
+              <div class="text-lg font-bold text-cyan-400">${sig.rule_agreement_score}%</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 my-3 text-xs">
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-slate-400 text-[11px]">قیمت مرجع بازار:</div>
+              <div class="font-bold text-white font-mono text-sm">${sig.entry_price ? sig.entry_price.toFixed(sig.symbol.includes('JPY') ? 3 : 5) : '---'}</div>
+            </div>
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-slate-400 text-[11px]">شمارش معکوس ۵ دقیقه:</div>
+              <div id="countdownEl" class="font-bold text-amber-400 font-mono text-sm">--:--</div>
+            </div>
+          </div>
+
+          <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800 text-xs text-slate-300 leading-relaxed mb-3">
+            <span class="font-bold text-slate-400">استدلال تحلیلی: </span>${sig.decision_reason}
+          </div>
+
+          <div class="p-2.5 bg-blue-950/30 rounded-lg border border-blue-800/40 text-[11px] text-blue-300 mb-3">
+            <strong>⏱️ تایمینگ دقیق ورود:</strong> ${sig.micro_timing_tip || 'ثانیه ۰ تا ۵ ابتدای کندل ۵ دقیقه‌ای در Quotex'}
+          </div>
+
+          <button onclick="openManualModal('${sig.id}')" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition shadow flex items-center justify-center gap-1.5">
+            📝 ثبت دستی نتیجه در Quotex (ژورنال)
+          </button>
+        </div>
+      `;
+
+      startCountdown(sig.expiry_time);
+    }
+
+    function startCountdown(expiryTimeStr) {
+      if (countdownTimer) clearInterval(countdownTimer);
+      const expiry = new Date(expiryTimeStr).getTime();
+
+      const update = () => {
+        const el = document.getElementById('countdownEl');
+        if (!el) return;
+        const now = Date.now();
+        const diff = Math.max(0, Math.floor((expiry - now) / 1000));
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      };
+
+      update();
+      countdownTimer = setInterval(update, 1000);
+    }
+
+    function renderFilters(filters) {
+      const box = document.getElementById('filtersContainer');
+      box.innerHTML = `
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-sm font-bold text-slate-200">
+          <span class="flex items-center gap-2"><span>🛡️</span> وضعیت ۹ فیلتر اعتبارسنجی مستقل استراتژی (سیستم Sniper)</span>
+          <span class="text-xs text-slate-400 font-normal">شامل روند، مومنتوم، واگرایی، بولینگر، قدرت ارزها و سشن</span>
+        </div>
+        <div class="divide-y divide-slate-800/80 mt-2">
+          ${filters.map(f => `
+            <div class="py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold">${f.filter_number}</span>
+                <span class="font-semibold text-slate-200">${f.filter_name}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 font-mono">${f.detected_direction || 'NEUTRAL'}</span>
+                <span class="px-2 py-0.5 rounded font-bold ${f.status === 'PASS' ? 'bg-emerald-500/20 text-emerald-400' : f.status === 'WARN' ? 'bg-amber-500/20 text-amber-400' : 'bg-rose-500/20 text-rose-400'}">
+                  ${f.status === 'PASS' ? 'تأیید شد' : f.status === 'WARN' ? 'هشدار' : 'رد شد'}
+                </span>
+              </div>
+              <div class="w-full text-slate-400 text-[11px] pr-7 leading-relaxed">${f.explanation}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    async function loadRecentSignals() {
+      try {
+        const res = await fetch('/api/signals?limit=30');
+        rawSignalsList = await res.json();
+        filterRecentSignals();
+      } catch (e) {
+        console.error('Signals list error:', e);
+      }
+    }
+
+    function filterRecentSignals() {
+      const symF = document.getElementById('filterSymSelect').value;
+      const dirF = document.getElementById('filterDirSelect').value;
+      const tbody = document.getElementById('recentSignalsTbody');
+
+      const filtered = rawSignalsList.filter(s => {
+        if (symF !== 'ALL' && s.symbol !== symF) return false;
+        if (dirF !== 'ALL' && s.direction !== dirF) return false;
+        return true;
+      });
+
+      tbody.innerHTML = filtered.map(s => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2 px-3 text-slate-400">${new Date(s.created_at).toLocaleTimeString()}</td>
+          <td class="py-2 px-3 font-bold text-white">${s.symbol}</td>
+          <td class="py-2 px-3">
+            <span class="px-2 py-0.5 rounded font-bold ${s.direction === 'CALL' ? 'bg-emerald-500/20 text-emerald-400' : s.direction === 'PUT' ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-800 text-slate-400'}">${s.direction}</span>
+          </td>
+          <td class="py-2 px-3 text-slate-300">${s.entry_price ? s.entry_price.toFixed(s.symbol.includes('JPY') ? 3 : 5) : '---'}</td>
+          <td class="py-2 px-3 text-cyan-400 font-bold">${s.rule_agreement_score}%</td>
+          <td class="py-2 px-3">${s.algorithmic_outcome ? (s.algorithmic_outcome === 'WIN' ? '<span class="text-emerald-400 font-bold">WIN</span>' : s.algorithmic_outcome === 'LOSS' ? '<span class="text-rose-400 font-bold">LOSS</span>' : '<span class="text-slate-400">TIE</span>') : '<span class="text-slate-500">در جریان</span>'}</td>
+          <td class="py-2 px-3">${s.manual_outcome ? `<span class="px-2 py-0.5 rounded font-bold ${s.manual_outcome.user_reported_outcome === 'WIN' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${s.manual_outcome.user_reported_outcome}</span>` : '<span class="text-slate-500">ثبت نشده</span>'}</td>
+          <td class="py-2 px-3 text-center">
+            <button onclick="openManualModal('${s.id}')" class="px-2 py-1 rounded bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 text-[11px]">
+              ${s.manual_outcome ? 'ویرایش' : 'ثبت Quotex'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openManualModal(sigId) {
+      const sig = rawSignalsList.find(s => s.id === sigId) || currentSignal;
+      if (!sig) return;
+      document.getElementById('modalSignalId').value = sig.id;
+      document.getElementById('modalSignalSummary').textContent = `${sig.symbol} | جهت: ${sig.direction} | ورود مرجع: ${sig.entry_price}`;
+      document.getElementById('modalEntryPrice').value = sig.entry_price || '';
+      document.getElementById('modalExpiryPrice').value = sig.entry_price || '';
+      selectModalOutcome('WIN');
+      document.getElementById('manualModal').classList.remove('hidden');
+    }
+
+    function closeManualModal() {
+      document.getElementById('manualModal').classList.add('hidden');
+    }
+
+    function selectModalOutcome(out) {
+      modalOutcomeChoice = out;
+      ['WIN', 'LOSS', 'TIE'].forEach(o => {
+        const btn = document.getElementById(`btn${o.charAt(0) + o.slice(1).toLowerCase()}`);
+        if (btn) btn.className = `py-2 rounded-lg font-bold border transition ${o === out ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-950 text-slate-400 border-slate-800'}`;
+      });
+    }
+
+    async function submitManualForm(e) {
+      e.preventDefault();
+      const sigId = document.getElementById('modalSignalId').value;
+      const ep = parseFloat(document.getElementById('modalEntryPrice').value);
+      const xp = parseFloat(document.getElementById('modalExpiryPrice').value);
+      const src = document.getElementById('modalPriceSource').value;
+      const notes = document.getElementById('modalNotes').value;
+
+      try {
+        const res = await fetch(`/api/signals/${sigId}/manual-outcome`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            observed_entry_price: ep,
+            observed_expiry_price: xp,
+            observed_time: new Date().toISOString(),
+            user_reported_outcome: modalOutcomeChoice,
+            price_source_description: src,
+            notes: notes
+          })
+        });
+        const updated = await res.json();
+        closeManualModal();
+        analyzeCurrent();
+      } catch (err) {
+        alert('خطا در ثبت اطلاعات دستی');
+      }
+    }
+
+    async function runBacktestAction() {
+      const btn = document.getElementById('btnRunBt');
+      btn.textContent = '⏳ در حال شبیه‌سازی...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/backtests', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            symbol: document.getElementById('btSymbol').value,
+            period_type: document.getElementById('btPeriod').value,
+            payout_ratio: parseFloat(document.getElementById('btPayout').value),
+            min_rule_agreement: parseInt(document.getElementById('btMinAgree').value),
+          })
+        });
+        const r = await res.json();
+        renderBacktestResults(r);
+      } catch (e) {
+        alert('خطا در اجرای بکتست');
+      } finally {
+        btn.textContent = '▶ اجرای بکتست';
+        btn.disabled = false;
+      }
+    }
+
+    function renderBacktestResults(r) {
+      const box = document.getElementById('btResultsContainer');
+      box.classList.remove('hidden');
+      box.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+            <div class="text-xs text-slate-400 mb-1">نرخ برد (Win Rate)</div>
+            <div class="text-2xl font-black font-mono ${r.win_rate >= r.break_even_rate ? 'text-emerald-400' : 'text-rose-400'}">${r.win_rate}%</div>
+            <div class="text-[10px] text-slate-500 mt-1 font-mono">سر‌به‌سر: ${r.break_even_rate}%</div>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+            <div class="text-xs text-slate-400 mb-1">فاصله اطمینان ویلسون</div>
+            <div class="text-sm font-bold font-mono text-cyan-400 mt-2">[${r.wilson_ci_lower}% - ${r.wilson_ci_upper}%]</div>
+            <div class="text-[10px] text-slate-500 mt-1">95% Confidence</div>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+            <div class="text-xs text-slate-400 mb-1">سود خالص شبیه‌سازی</div>
+            <div class="text-xl font-black font-mono ${r.net_simulated_return >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${r.net_simulated_return > 0 ? `+${r.net_simulated_return}` : r.net_simulated_return} U</div>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+            <div class="text-xs text-slate-400 mb-1">بیشترین باخت متوالی</div>
+            <div class="text-2xl font-black font-mono text-amber-400">${r.max_consecutive_losses}</div>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+            <div class="text-xs text-slate-400 mb-1">تعداد سیگنال ارزیابی‌شده</div>
+            <div class="text-2xl font-black font-mono text-white">${r.win_count + r.loss_count}</div>
+            <div class="text-[10px] text-slate-500 font-mono">${r.win_count} برد | ${r.loss_count} باخت</div>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+            <div class="text-xs text-slate-400 mb-1">تفکیک CALL / PUT</div>
+            <div class="text-sm font-bold font-mono text-slate-200 mt-2">${r.call_signals} C / ${r.put_signals} P</div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadAnalytics() {
+      const box = document.getElementById('analyticsContent');
+      box.innerHTML = '<div class="p-8 text-center text-slate-400">در حال دریافت آمار...</div>';
+      try {
+        const res = await fetch('/api/analytics/summary');
+        const d = await res.json();
+        box.innerHTML = `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+            <h2 class="text-base font-bold text-white mb-4">📈 ژورنال و مقایسه عملکرد</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div class="text-cyan-400 font-bold mb-2">🤖 ارزیابی خودکار الگوریتمی (Paper Trading)</div>
+                <div class="text-xl font-bold font-mono text-cyan-400">نرخ برد: ${d.algorithmic_win_rate}%</div>
+                <div class="text-xs text-slate-400 mt-1">${d.evaluated_signals} سیگنال ارزیابی‌شده</div>
+                <div class="text-xs text-slate-400 mt-1 font-mono">دامنه اطمینان ویلسون: [${d.algorithmic_wilson_lower}% - ${d.algorithmic_wilson_upper}%]</div>
+              </div>
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div class="text-indigo-400 font-bold mb-2">📝 ثبت دستی کاربر در Quotex</div>
+                <div class="text-xl font-bold font-mono text-indigo-400">نرخ برد شما: ${d.manual_win_rate}%</div>
+                <div class="text-xs text-slate-400 mt-1">${d.manual_logged_trades} معامله ثبت‌شده (${d.manual_wins} برد، ${d.manual_losses} باخت)</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        console.error('Analytics error:', e);
+      }
+    }
+
+    async function loadSettings() {
+      const box = document.getElementById('settingsContent');
+      box.innerHTML = '<div class="p-8 text-center text-slate-400">در حال بارگذاری تنظیمات...</div>';
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        box.innerHTML = `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg space-y-4 text-xs">
+            <h2 class="text-base font-bold text-white border-b border-slate-800 pb-3">⚙️ تنظیمات استراتژی و اتصال</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div><label class="text-slate-400">حالت داده:</label><div class="p-2 bg-slate-950 rounded font-bold text-cyan-400">${s.data_mode}</div></div>
+              <div><label class="text-slate-400">EMA Fast:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.ema_fast_period}</div></div>
+              <div><label class="text-slate-400">EMA Slow:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.ema_slow_period}</div></div>
+              <div><label class="text-slate-400">RSI Period:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.rsi_period}</div></div>
+              <div><label class="text-slate-400">ATR Period:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.atr_period}</div></div>
+              <div><label class="text-slate-400">حدنصاب توافق:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.min_rule_agreement_count} از ۵</div></div>
+              <div><label class="text-slate-400">Payout %:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.default_payout_ratio}</div></div>
+              <div><label class="text-slate-400">کلید Twelve Data:</label><div class="p-2 bg-slate-950 rounded font-mono text-emerald-400">${s.twelve_data_api_key || 'تنظیم نشده (فید بین‌بانکی فعال است)'}</div></div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        console.error('Settings error:', e);
+      }
+    }
+
+    // Auto-refresh timer loop
+    function startAutoRefreshLoop() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshCount = 10;
+      autoRefreshTimer = setInterval(() => {
+        autoRefreshCount--;
+        const counterEl = document.getElementById('autoRefreshCounter');
+        if (counterEl) counterEl.textContent = autoRefreshCount;
+
+        if (autoRefreshCount <= 0) {
+          autoRefreshCount = 10;
+          analyzeCurrent();
+          loadCandles();
+        }
+      }, 1000);
+    }
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+    }
+
+    // Auto-boot on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initHeader();
+      fetchMarketStatus();
+      loadCandles();
+      analyzeCurrent();
+      startAutoRefreshLoop();
+    });
+  </script>
+</body>
+</html>
