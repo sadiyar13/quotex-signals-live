@@ -431,3 +431,63 @@ def evaluate_filter_9_session_liquidity(now_utc=None) -> FilterResult:
             f"{sess['session_name']}: {sess['explanation']}"
         )
 
+
+def evaluate_filter_10_smc(df_m1: pd.DataFrame) -> FilterResult:
+    """
+    فیلتر دهم: رویکرد پول هوشمند و شکاف ارزش (Smart Money Concepts & FVG)
+    تشخیص ردپای نهادها، استاپ‌هانت نقدینگی، و شکاف‌های قیمت برای ورود اسنایپری.
+    """
+    from app.indicators.smc import analyze_smart_money_concepts
+    name = "پول هوشمند و شکاف ارزش (SMC & FVG)"
+    smc_res = analyze_smart_money_concepts(df_m1)
+
+    values = {
+        "setup_name": smc_res["setup_name"],
+        "confidence": smc_res["confidence"],
+        "has_fvg": smc_res["fvg"]["has_fvg"],
+        "has_order_block": smc_res["order_block"]["has_order_block"],
+        "has_sweep": smc_res["liquidity_sweep"]["has_sweep"],
+    }
+
+    if smc_res["direction"] in ["CALL", "PUT"]:
+        return FilterResult(
+            10, name, "PASS", smc_res["direction"], values,
+            smc_res["explanation"]
+        )
+    else:
+        return FilterResult(
+            10, name, "NEUTRAL", "NEUTRAL", values,
+            smc_res["explanation"]
+        )
+
+
+def evaluate_filter_11_oscillators(df_m1: pd.DataFrame, rsi_val: float = 50.0) -> FilterResult:
+    """
+    فیلتر یازدهم: تاییدیه همگرایی سه‌گانه اسیلاتورها (Stochastic & CCI & RSI)
+    شکار کراس‌های استوکاستیک در نقاط افراطی و بازگشت‌های مومنتوم CCI.
+    """
+    from app.indicators.oscillators import analyze_confluence_oscillators
+    name = "همگرایی اسیلاتورها (Stochastic & CCI)"
+    osc_res = analyze_confluence_oscillators(df_m1, rsi_val=rsi_val)
+
+    values = {
+        "stoch_k": osc_res["stochastic"]["k"],
+        "stoch_d": osc_res["stochastic"]["d"],
+        "cci": osc_res["cci"]["cci"],
+        "rsi": osc_res["rsi"],
+        "call_points": osc_res["call_points"],
+        "put_points": osc_res["put_points"],
+    }
+
+    if osc_res["direction"] in ["CALL", "PUT"]:
+        return FilterResult(
+            11, name, "PASS", osc_res["direction"], values,
+            osc_res["explanation"]
+        )
+    else:
+        return FilterResult(
+            11, name, "NEUTRAL", "NEUTRAL", values,
+            osc_res["explanation"]
+        )
+
+

@@ -87,6 +87,14 @@ class SignalSchema(BaseModel):
     fear_and_greed: Optional[Dict[str, Any]] = None
     currency_strength: Optional[Dict[str, Any]] = None
     micro_timing_tip: Optional[str] = None
+    is_pre_signal: Optional[bool] = False
+    pre_signal_direction: Optional[str] = "NONE"
+    readiness_score: Optional[float] = 0.0
+    pre_signal_message: Optional[str] = None
+    recommended_timeframe: Optional[str] = "M1 / M5"
+    recommended_expiry_minutes: Optional[int] = 5
+    recommended_expiry_description: Optional[str] = None
+    timing_guide: Optional[str] = None
 
     class Config:
         from_attributes = True

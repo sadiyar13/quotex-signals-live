@@ -123,52 +123,54 @@ class SignalService:
 
         # Step 4: Check if signal already exists (prevent duplicate records)
         existing = db.query(SignalRecord).filter(SignalRecord.id == sig_id).first()
-        if existing:
-            res_dict = self._format_signal_dict(existing)
-            res_dict["fear_and_greed"] = analysis.get("fear_and_greed")
-            res_dict["currency_strength"] = analysis.get("currency_strength")
-            res_dict["micro_timing_tip"] = analysis.get("micro_timing_tip")
-            return res_dict
-
-        # Create new record
-        sig_rec = SignalRecord(
-            id=sig_id,
-            symbol=symbol,
-            direction=direction,
-            created_at=analysis["created_at"],
-            entry_price=analysis["entry_price"],
-            expiry_time=analysis["expiry_time"],
-            data_source=data_source,
-            timeframe=timeframe,
-            rule_agreement_score=analysis["rule_agreement_score"],
-            strategy_version=analysis["strategy_version"],
-            data_quality_status=analysis["data_quality_status"],
-            decision_reason=analysis["decision_reason"],
-            is_evaluated=False if direction in ["CALL", "PUT"] else True,
-            algorithmic_outcome="PENDING" if direction in ["CALL", "PUT"] else None,
-        )
-        db.add(sig_rec)
-
-        # Add filter results
-        for f in analysis["filters"]:
-            f_rec = FilterResultRecord(
-                signal_id=sig_id,
-                filter_number=f["filter_number"],
-                filter_name=f["filter_name"],
-                status=f["status"],
-                detected_direction=f["detected_direction"],
-                indicator_values=json.dumps(f["indicator_values"]),
-                explanation=f["explanation"],
+        res_dict = self._format_signal_dict(existing) if existing else None
+        if not existing:
+            # Create new record
+            sig_rec = SignalRecord(
+                id=sig_id,
+                symbol=symbol,
+                direction=direction,
+                created_at=analysis["created_at"],
+                entry_price=analysis["entry_price"],
+                expiry_time=analysis["expiry_time"],
+                data_source=data_source,
+                timeframe=timeframe,
+                rule_agreement_score=analysis["rule_agreement_score"],
+                strategy_version=analysis["strategy_version"],
+                data_quality_status=analysis["data_quality_status"],
+                decision_reason=analysis["decision_reason"],
+                is_evaluated=False if direction in ["CALL", "PUT"] else True,
+                algorithmic_outcome="PENDING" if direction in ["CALL", "PUT"] else None,
             )
-            db.add(f_rec)
+            db.add(sig_rec)
 
-        db.commit()
-        db.refresh(sig_rec)
+            # Add filter results
+            for f in analysis["filters"]:
+                f_rec = FilterResultRecord(
+                    signal_id=sig_id,
+                    filter_number=f["filter_number"],
+                    filter_name=f["filter_name"],
+                    status=f["status"],
+                    detected_direction=f["detected_direction"],
+                    indicator_values=json.dumps(f["indicator_values"]),
+                    explanation=f["explanation"],
+                )
+                db.add(f_rec)
 
-        res_dict = self._format_signal_dict(sig_rec)
-        res_dict["fear_and_greed"] = analysis.get("fear_and_greed")
-        res_dict["currency_strength"] = analysis.get("currency_strength")
-        res_dict["micro_timing_tip"] = analysis.get("micro_timing_tip")
+            db.commit()
+            db.refresh(sig_rec)
+            res_dict = self._format_signal_dict(sig_rec)
+
+        # Merge live real-time SMC and pre-signal attributes
+        for field in [
+            "fear_and_greed", "currency_strength", "micro_timing_tip",
+            "is_pre_signal", "pre_signal_direction", "readiness_score",
+            "pre_signal_message", "recommended_timeframe",
+            "recommended_expiry_minutes", "recommended_expiry_description", "timing_guide"
+        ]:
+            if field in analysis:
+                res_dict[field] = analysis[field]
+
         return res_dict
 
     def get_signals(
@@ -351,4 +353,100 @@ class SignalService:
             "manual_outcome": man_dict,
         }
 
+    def scan_all_pairs_fast(self, db: Session) -> Dict[str, Any]:
+        """
+        High-Speed Multi-Pair Scanner:
+        Scans all 7 major forex pairs in parallel using in-memory candle cache.
+        Returns pre-signal alerts, readiness scores, and instant active setups.
+        """
+        results = []
+        data_source = market_data_manager.get_active_provider().source_name
+
+        for symbol in settings.SUPPORTED_SYMBOLS:
+            try:
+                df_m1, rep_m1 = market_data_manager.get_candles(symbol, "M1", count=80)
+                df_m5, _ = market_data_manager.get_candles(symbol, "M5", count=40)
+                df_m15, _ = market_data_manager.get_candles(symbol, "M15", count=30)
+
+                analysis = strategy_engine.analyze(
+                    symbol=symbol,
+                    df_m1=df_m1,
+                    df_m5=df_m5,
+                    df_m15=df_m15,
+                    data_source=data_source,
+                    data_quality_status=rep_m1.status,
+                )
+
+                direction = analysis["direction"]
+                is_pre = analysis.get("is_pre_signal", False)
+                readiness = analysis.get("readiness_score", 0.0)
+
+                if direction in ["CALL", "PUT"]:
+                    badge = "SIGNAL_ACTIVE"
+                elif is_pre:
+                    badge = "PRE_SIGNAL_READY"
+                else:
+                    badge = "MONITORING"
+
+                results.append({
+                    "symbol": symbol,
+                    "direction": direction,
+                    "entry_price": analysis["entry_price"],
+                    "is_pre_signal": is_pre,
+                    "pre_signal_direction": analysis.get("pre_signal_direction", "NONE"),
+                    "readiness_score": readiness,
+                    "pre_signal_message": analysis.get("pre_signal_message", ""),
+                    "rule_agreement_score": analysis.get("rule_agreement_score", 0.0),
+                    "status_badge": badge,
+                    "decision_reason": analysis.get("decision_reason", ""),
+                    "recommended_timeframe": analysis.get("recommended_timeframe", "M1 / M5"),
+                    "recommended_expiry_minutes": analysis.get("recommended_expiry_minutes", 5),
+                    "recommended_expiry_description": analysis.get("recommended_expiry_description", "انقضای ۵ دقیقه در کوتکس"),
+                    "timing_guide": analysis.get("timing_guide", "ثانیه ۰ تا ۳ شروع کندل"),
+                    "updated_at": datetime.datetime.utcnow().isoformat(),
+                })
+            except Exception as e:
+                results.append({
+                    "symbol": symbol,
+                    "direction": "NO TRADE",
+                    "entry_price": 0.0,
+                    "is_pre_signal": False,
+                    "pre_signal_direction": "NONE",
+                    "readiness_score": 0.0,
+                    "pre_signal_message": f"خطا در اسکن: {str(e)}",
+                    "rule_agreement_score": 0.0,
+                    "status_badge": "ERROR",
+                    "decision_reason": str(e),
+                    "recommended_timeframe": "M1",
+                    "recommended_expiry_minutes": 5,
+                    "recommended_expiry_description": "نامشخص",
+                    "timing_guide": "",
+                    "updated_at": datetime.datetime.utcnow().isoformat(),
+                })
+
+        # Sort: ACTIVE signals first, then PRE_SIGNAL_READY by readiness_score descending, then others
+        def sort_key(item):
+            if item["status_badge"] == "SIGNAL_ACTIVE":
+                return (0, -item["rule_agreement_score"])
+            elif item["status_badge"] == "PRE_SIGNAL_READY":
+                return (1, -item["readiness_score"])
+            else:
+                return (2, 0)
+
+        results.sort(key=sort_key)
+
+        active_count = sum(1 for r in results if r["status_badge"] == "SIGNAL_ACTIVE")
+        pre_count = sum(1 for r in results if r["status_badge"] == "PRE_SIGNAL_READY")
+        top_opportunity = results[0] if results else None
+
+        return {
+            "scan_time": datetime.datetime.utcnow().isoformat(),
+            "symbols_scanned": len(results),
+            "active_signals_count": active_count,
+            "pre_signals_count": pre_count,
+            "top_opportunity": top_opportunity,
+            "items": results,
+        }
+
 signal_service = SignalService()
+

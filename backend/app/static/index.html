@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>داشبورد هوشمند سیگنال‌دهی باینری آپشن Quotex</title>
+  <title>سامانه سیگنال‌دهی فوق‌حرفه‌ای باینری آپشن Quotex | تم شیشه‌ای Glassmorphism</title>
   
   <!-- PWA & Android Meta Tags -->
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#030712">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,24 +16,70 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
   <style>
-    body { font-family: 'Vazirmatn', sans-serif; -webkit-tap-highlight-color: transparent; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0b0f19; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-    @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .pulse-slow { animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background: radial-gradient(ellipse at top, #0f172a 0%, #030712 100%);
+      background-attachment: fixed;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.8); }
+    ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 4px; }
+    
+    /* Luxury Glassmorphism CSS */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.58);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    }
+    .glass-card-sub {
+      background: rgba(30, 41, 59, 0.42);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-glow-call {
+      box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(15, 23, 42, 0.65) 100%);
+    }
+    .glass-glow-put {
+      box-shadow: 0 0 35px -5px rgba(244, 63, 94, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(244, 63, 94, 0.45);
+      background: linear-gradient(135deg, rgba(136, 19, 55, 0.35) 0%, rgba(15, 23, 42, 0.65) 100%);
+    }
+    .glass-glow-pre {
+      box-shadow: 0 0 30px -5px rgba(234, 179, 8, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(234, 179, 8, 0.5);
+      background: linear-gradient(135deg, rgba(113, 63, 18, 0.35) 0%, rgba(15, 23, 42, 0.65) 100%);
+    }
+    
+    @keyframes pulse-fast {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.96); }
+    }
+    .pulse-fast { animation: pulse-fast 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    
+    @keyframes radar-ping {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+    }
+    .radar-pulse { animation: radar-ping 1.8s infinite; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white pb-12 sm:pb-0">
+<body class="text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black pb-12 sm:pb-0">
 
   <!-- ANDROID PWA INSTALL PROMPT BANNER -->
-  <div id="pwaBanner" class="hidden bg-gradient-to-r from-blue-900/90 via-indigo-900/90 to-purple-900/90 border-b border-indigo-700/50 px-4 py-2 text-xs flex items-center justify-between gap-3 shadow-lg">
+  <div id="pwaBanner" class="hidden glass-panel border-b border-indigo-500/30 px-4 py-2 text-xs flex items-center justify-between gap-3 shadow-xl">
     <div class="flex items-center gap-2">
       <span class="text-lg">📱</span>
-      <span><strong>نسخه اختصاصی اندروید:</strong> نصب مستقیم روی صفحه اصلی گوشی (آنلاین و زنده بدون نیاز به دانلود فایل)</span>
+      <span><strong>نسخه شیشه‌ای اندروید:</strong> نصب مستقیم روی صفحه گوشی با هشدارهای ویبره و اعلان لحظه‌ای</span>
     </div>
     <div class="flex items-center gap-2">
-      <button onclick="installPwaAction()" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow flex items-center gap-1">
+      <button onclick="installPwaAction()" class="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition shadow flex items-center gap-1">
         ⬇️ نصب اپلیکیشن
       </button>
       <button onclick="dismissPwaBanner()" class="text-slate-400 hover:text-white text-base">✕</button>
@@ -41,101 +87,115 @@
   </div>
 
   <!-- FLOATING NOTIFICATION TOAST -->
-  <div id="signalToast" class="hidden fixed top-4 right-4 z-50 max-w-sm w-full bg-slate-900 border-2 rounded-xl p-4 shadow-2xl transition-all transform duration-300">
+  <div id="signalToast" class="hidden fixed top-5 right-5 z-50 max-w-sm w-full glass-panel rounded-2xl p-4 shadow-2xl transition-all transform duration-300">
     <div class="flex items-start justify-between gap-3">
-      <div class="flex items-center gap-2">
-        <span id="toastIcon" class="text-2xl">⚡</span>
+      <div class="flex items-center gap-3">
+        <span id="toastIcon" class="text-3xl">⚡</span>
         <div>
-          <h4 id="toastTitle" class="font-bold text-sm text-white">سیگنال معاملاتی جدید</h4>
-          <p id="toastBody" class="text-xs text-slate-300 mt-0.5 leading-relaxed"></p>
+          <h4 id="toastTitle" class="font-black text-sm text-white">هشدار سیگنال</h4>
+          <p id="toastBody" class="text-xs text-slate-200 mt-0.5 leading-relaxed"></p>
         </div>
       </div>
       <button onclick="dismissToast()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
     </div>
-    <div class="mt-3 flex items-center justify-between text-[11px] pt-2 border-t border-slate-800">
+    <div class="mt-3 flex items-center justify-between text-[11px] pt-2 border-t border-white/10">
       <span id="toastTime" class="text-slate-400 font-mono">--:--:--</span>
-      <span class="text-cyan-400 font-medium">افق معامله: ۵ دقیقه</span>
+      <span class="text-amber-300 font-bold">انقضا: ۵ دقیقه در Quotex</span>
     </div>
   </div>
 
   <!-- TOP HEADER -->
-  <header class="bg-slate-900 border-b border-slate-800 shadow-md sticky top-0 z-40 backdrop-blur-md bg-slate-900/95">
+  <header class="glass-panel sticky top-0 z-40 border-b border-white/10">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-inner">
-          ⚡
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-cyan-500/20">
+          💎
         </div>
         <div>
-          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            داشبورد هوشمند سیگنال‌دهی باینری آپشن
-            <span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-normal">
-              Quotex Pro v2.0 Live & Android
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+            داشبورد سیگنال‌دهی کوتکس
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-mono">
+              v3.0 SMC & Glass
             </span>
           </h1>
-          <p class="text-xs text-slate-400 hidden sm:block">
-            دستیار تحلیلی دستی فارکس | ۹ فیلتر کمی | شاخص ترس و طمع | واگرایی و قدرت ارزها
+          <p class="text-[11px] text-slate-400 hidden sm:block">
+            متد اسمارت مانی (SMC / FVG / Order Blocks) + استوکاستیک و CCI + رادار زنده آماده‌باش
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 flex-wrap text-xs">
         <!-- Live Status Badge -->
-        <span id="modeBadge" class="px-2.5 py-1 rounded-full font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 pulse-slow"></span>
+        <span id="modeBadge" class="px-2.5 py-1 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-fast"></span>
           <span id="modeBadgeText">در حال اتصال به بازار...</span>
         </span>
 
         <!-- Market Session Badge -->
-        <span id="sessionBadge" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-medium hidden md:inline-flex items-center gap-1">
+        <span id="sessionBadge" class="px-2.5 py-1 rounded-full glass-card-sub text-slate-300 font-medium hidden md:inline-flex items-center gap-1">
           🌐 <span>سشن فارکس: در حال بررسی</span>
         </span>
 
         <!-- Audio Alert Toggle -->
-        <button id="btnAudioToggle" onclick="toggleAudioAlert()" class="px-3 py-1 rounded-lg border font-medium transition shadow flex items-center gap-1.5 bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">
+        <button id="btnAudioToggle" onclick="toggleAudioAlert()" class="px-3 py-1.5 rounded-xl border font-bold transition shadow-md flex items-center gap-1.5 glass-card-sub text-slate-300 border-white/10 hover:border-cyan-500/40">
           <span id="audioIcon">🔇</span>
           <span id="audioText">هشدار صوتی: غیرفعال</span>
         </button>
 
         <!-- Android App Info Button -->
-        <button onclick="openAndroidModal()" class="px-2.5 py-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 transition flex items-center gap-1 font-medium" title="راهنمای نسخه اندروید">
-          <span>📱</span> اپلیکیشن اندروید
+        <button onclick="openAndroidModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600/30 to-teal-600/30 hover:from-emerald-600/50 hover:to-teal-600/50 border border-emerald-500/40 text-emerald-300 transition flex items-center gap-1.5 font-bold" title="راهنمای نسخه اندروید">
+          <span>📱</span> دانلود APK
         </button>
 
-        <!-- Refresh Button -->
-        <button id="btnRefresh" onclick="analyzeCurrent()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition shadow flex items-center gap-1">
-          🔄 تحلیل مجدد (<span id="autoRefreshCounter" class="font-mono">10</span>s)
+        <!-- Manual Refresh Button -->
+        <button id="btnRefresh" onclick="analyzeCurrent()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold transition shadow-lg shadow-cyan-600/20 flex items-center gap-1">
+          🔄 بروزرسانی (<span id="autoRefreshCounter" class="font-mono">3</span>s)
         </button>
       </div>
     </div>
 
+    <!-- PRE-SIGNAL LIVE RADAR BAR -->
+    <div class="border-t border-white/5 bg-slate-950/40 px-4 py-2">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 radar-pulse"></span>
+          <span class="text-xs font-black text-amber-300">⚡ رادار لحظه‌ای ستاپ‌ها و آماده‌باش:</span>
+          <span id="radarTopMessage" class="text-xs text-slate-300 truncate max-w-md hidden sm:inline">در حال پایش زنده تمام ۷ جفت‌ارز...</span>
+        </div>
+        <div id="radarPairsStrip" class="flex items-center gap-1.5 overflow-x-auto max-w-full py-0.5">
+          <!-- Rendered dynamically by fast scanner -->
+        </div>
+      </div>
+    </div>
+
     <!-- Navigation & Symbol Bar -->
-    <div class="bg-slate-950/70 border-t border-slate-800/60 px-4 py-2.5">
+    <div class="border-t border-white/5 bg-slate-950/60 px-4 py-2">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-        <nav class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 text-xs overflow-x-auto max-w-full">
-          <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3.5 py-1.5 rounded-md font-medium transition bg-blue-600 text-white whitespace-nowrap">
+        <nav class="flex items-center gap-1 glass-card-sub p-1 rounded-xl text-xs overflow-x-auto max-w-full">
+          <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3.5 py-1.5 rounded-lg font-bold transition bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow whitespace-nowrap">
             📊 تحلیل زنده و سیگنال‌ها
           </button>
-          <button onclick="switchTab('backtest')" id="tabBtnBacktest" class="px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
+          <button onclick="switchTab('backtest')" id="tabBtnBacktest" class="px-3.5 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
             🧪 موتور بکتست ۳ دوره‌ای
           </button>
-          <button onclick="switchTab('analytics')" id="tabBtnAnalytics" class="px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
+          <button onclick="switchTab('analytics')" id="tabBtnAnalytics" class="px-3.5 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
             📈 ژورنال و نتایج Quotex
           </button>
-          <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
+          <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3.5 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white whitespace-nowrap">
             ⚙️ تنظیمات استراتژی
           </button>
         </nav>
 
         <div class="flex items-center gap-3 flex-wrap">
-          <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs overflow-x-auto">
-            <span class="text-slate-400 px-2 font-medium">جفت‌ارز فارکس:</span>
+          <div class="flex items-center gap-1 glass-card-sub p-1 rounded-xl text-xs overflow-x-auto">
+            <span class="text-slate-400 px-2 font-medium">جفت‌ارز:</span>
             <div id="symbolButtons" class="flex items-center gap-1"></div>
           </div>
 
-          <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
-            <button onclick="selectTimeframe('M1')" id="tf_M1" class="px-2.5 py-1 rounded font-mono font-medium bg-cyan-600 text-white">M1</button>
-            <button onclick="selectTimeframe('M5')" id="tf_M5" class="px-2.5 py-1 rounded font-mono font-medium text-slate-400 hover:bg-slate-800">M5</button>
-            <button onclick="selectTimeframe('M15')" id="tf_M15" class="px-2.5 py-1 rounded font-mono font-medium text-slate-400 hover:bg-slate-800">M15</button>
+          <div class="flex items-center gap-1 glass-card-sub p-1 rounded-xl text-xs">
+            <button onclick="selectTimeframe('M1')" id="tf_M1" class="px-2.5 py-1 rounded-lg font-mono font-bold bg-cyan-600 text-white shadow">M1</button>
+            <button onclick="selectTimeframe('M5')" id="tf_M5" class="px-2.5 py-1 rounded-lg font-mono font-medium text-slate-400 hover:bg-slate-800">M5</button>
+            <button onclick="selectTimeframe('M15')" id="tf_M15" class="px-2.5 py-1 rounded-lg font-mono font-medium text-slate-400 hover:bg-slate-800">M15</button>
           </div>
         </div>
       </div>
@@ -147,17 +207,43 @@
 
     <!-- 1. DASHBOARD TAB -->
     <div id="tabDashboard" class="space-y-6">
-      
-      <!-- Top Intelligence Cards (Fear & Greed Index + Currency Strength Meter) -->
+
+      <!-- QUOTEX TRADING EXECUTION GUIDE BANNER -->
+      <div id="executionGuideBanner" class="glass-panel rounded-2xl p-4 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-cyan-950/30 via-slate-900/50 to-blue-950/30 shadow-lg">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-xl">
+            🎯
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-cyan-300">راهنمای صریح ورود دستی در پلتفرم Quotex</h3>
+            <p class="text-xs text-slate-300 mt-0.5">
+              برای حداکثر نرخ برد (Win Rate بالا)، تنظیمات زیر را در حساب کوتکس خود لحاظ نمایید:
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap text-xs">
+          <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-cyan-400/20 text-slate-200">
+            <span>⏱️ تایم‌فریم چارت کوتکس:</span> <strong class="text-cyan-300 font-mono">M1 یا M5</strong>
+          </div>
+          <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-amber-400/20 text-slate-200">
+            <span>⏳ زمان انقضا (Expiration):</span> <strong class="text-amber-300 font-mono">۵ دقیقه (انتهای کندل M5)</strong>
+          </div>
+          <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-emerald-400/20 text-slate-200">
+            <span>⚡ لحظه ورود طلایی:</span> <strong class="text-emerald-300 font-mono">ثانیه ۰ تا ۳ شروع کندل</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Intelligence Cards (Fear & Greed Index + Currency Strength Meter + SMC Breakdown) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         
         <!-- Fear & Greed Index Gauge Widget -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="glass-panel rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
               <span>🧭</span> شاخص احساسات و ترس و طمع فارکس (Fear & Greed)
             </h3>
-            <span id="fgStateBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-300">
+            <span id="fgStateBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold glass-card-sub text-slate-300">
               --
             </span>
           </div>
@@ -166,7 +252,7 @@
             <!-- Radial SVG Gauge -->
             <div class="relative w-28 h-28 flex items-center justify-center">
               <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#1e293b" stroke-width="10" fill="none" />
+                <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.06)" stroke-width="10" fill="none" />
                 <circle id="fgGaugeCircle" cx="50" cy="50" r="40" stroke="#06b6d4" stroke-width="10" stroke-linecap="round" fill="none" stroke-dasharray="251.2" stroke-dashoffset="125.6" class="transition-all duration-700 ease-out" />
               </svg>
               <div class="absolute flex flex-col items-center justify-center">
@@ -191,10 +277,10 @@
         </div>
 
         <!-- Currency Strength Meter (CSM) -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="glass-panel rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
-              <span>💪</span> سنجش موازنه قدرت ارزها (Currency Strength Meter)
+              <span>💪</span> موازنه قدرت نسبی ارزها (Currency Strength Meter)
             </h3>
             <span class="text-[10px] text-slate-400 font-mono">مقیاس ۰ تا ۱۰</span>
           </div>
@@ -203,23 +289,23 @@
           </div>
         </div>
 
-        <!-- Session Liquidity & Micro-Timing Card -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <!-- Smart Money Concepts (SMC) & Liquidity Overview -->
+        <div class="glass-panel rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
-              <span>⏱️</span> زمان‌بندی ورود و سشن نقدینگی
+              <span>🏦</span> ردپای نهادی و پول هوشمند (SMC Engine)
             </h3>
-            <span id="sessionTierBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-950 text-indigo-400 border border-indigo-800/50">سشن لندن/نیویورک</span>
+            <span id="smcHeaderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">ICT Active</span>
           </div>
-          <div class="space-y-2.5 pt-3 text-xs leading-relaxed text-slate-300">
-            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-[11px]">
-              <strong class="text-cyan-400">💡 قانون طلایی ورود در کیوتکس:</strong>
-              <p class="text-slate-400 mt-1">
-                برای جلوگیری از خطای اسلیپیج ثانیه‌ای، دقیقاً در <strong>ثانیه ۰ تا ۵ شروع کندل جدید</strong> معامله دستی ثبت نمایید.
-              </p>
+          <div class="space-y-2 pt-3 text-xs leading-relaxed text-slate-300">
+            <div id="smcStatusBox" class="glass-card-sub p-2.5 rounded-xl border border-white/5 text-[11px]">
+              <strong class="text-cyan-300">شکاف ارزش و اردر بلاک‌ها:</strong>
+              <p id="smcSummaryText" class="text-slate-300 mt-1">در حال رصد ساختار FVG و شکار نقدینگی...</p>
             </div>
-            <div id="sessionExplanationEl" class="text-[11px] text-slate-400 leading-relaxed">
-              بررسی حجم معاملات بازار بر مبنای سشن‌های فعال...
+            <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] font-mono">
+              <div class="glass-card-sub p-1.5 rounded-lg"><span class="text-slate-400 block">FVG</span><span id="smcFvgVal" class="text-white font-bold">--</span></div>
+              <div class="glass-card-sub p-1.5 rounded-lg"><span class="text-slate-400 block">Order Block</span><span id="smcObVal" class="text-white font-bold">--</span></div>
+              <div class="glass-card-sub p-1.5 rounded-lg"><span class="text-slate-400 block">Sweep</span><span id="smcSweepVal" class="text-white font-bold">--</span></div>
             </div>
           </div>
         </div>
@@ -229,21 +315,21 @@
       <!-- Chart and Signal Card Section -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Chart Container -->
-        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-lg flex flex-col h-[460px]">
-          <div class="flex justify-between items-center px-3 py-2 border-b border-slate-800 text-xs mb-2">
+        <div class="lg:col-span-2 glass-panel rounded-2xl p-3 shadow-2xl flex flex-col h-[480px]">
+          <div class="flex justify-between items-center px-3 py-2 border-b border-white/10 text-xs mb-2">
             <div class="flex items-center gap-3">
-              <span id="chartSymbolTitle" class="font-bold text-slate-100 text-sm">EUR/USD</span>
-              <span id="chartTfTitle" class="px-2 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono">M1</span>
+              <span id="chartSymbolTitle" class="font-black text-slate-100 text-sm">EUR/USD</span>
+              <span id="chartTfTitle" class="px-2.5 py-0.5 rounded-lg glass-card-sub text-cyan-400 font-mono font-bold">M1</span>
               <span id="chartSourceTitle" class="text-slate-400 text-[11px]">منبع: جریان رسمی بازار بین‌بانکی</span>
             </div>
             <div class="flex items-center gap-3 text-slate-400 text-xs">
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>صعودی</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>نزولی</span>
-              <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-cyan-400"></span>آخرین مظنه</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>صعودی</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-sm shadow-rose-400"></span>نزولی</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-cyan-400"></span>مظنه زنده</span>
             </div>
           </div>
           <div class="flex-1 relative w-full">
-            <canvas id="candleCanvas" class="w-full h-full block"></canvas>
+            <canvas id="candleCanvas" class="w-full h-full block rounded-xl"></canvas>
           </div>
         </div>
 
@@ -253,20 +339,20 @@
         </div>
       </div>
 
-      <!-- 9 Filters Accordion -->
-      <div id="filtersContainer" class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg"></div>
+      <!-- 11 Filters Accordion -->
+      <div id="filtersContainer" class="glass-panel rounded-2xl p-5 shadow-2xl"></div>
 
       <!-- Recent Signals Table -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg">
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+      <div class="glass-panel rounded-2xl p-5 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
           <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
             <span>📜</span> تاریخچه و ژورنال سیگنال‌های اخیر
           </h3>
           <div class="flex items-center gap-2 text-xs">
-            <select id="filterSymSelect" onchange="filterRecentSignals()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300">
+            <select id="filterSymSelect" onchange="filterRecentSignals()" class="glass-card-sub rounded-xl px-3 py-1.5 text-slate-200 outline-none">
               <option value="ALL">همه جفت‌ارزها</option>
             </select>
-            <select id="filterDirSelect" onchange="filterRecentSignals()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300">
+            <select id="filterDirSelect" onchange="filterRecentSignals()" class="glass-card-sub rounded-xl px-3 py-1.5 text-slate-200 outline-none">
               <option value="ALL">همه جهات</option>
               <option value="CALL">فقط CALL</option>
               <option value="PUT">فقط PUT</option>
@@ -277,7 +363,7 @@
         <div class="overflow-x-auto mt-3">
           <table class="w-full text-right text-xs">
             <thead>
-              <tr class="border-b border-slate-800 text-slate-400">
+              <tr class="border-b border-white/10 text-slate-400">
                 <th class="py-2.5 px-3">زمان (UTC)</th>
                 <th class="py-2.5 px-3">جفت‌ارز</th>
                 <th class="py-2.5 px-3">جهت</th>
@@ -288,7 +374,7 @@
                 <th class="py-2.5 px-3 text-center">عملیات</th>
               </tr>
             </thead>
-            <tbody id="recentSignalsTbody" class="divide-y divide-slate-800/60 font-mono"></tbody>
+            <tbody id="recentSignalsTbody" class="divide-y divide-white/5 font-mono"></tbody>
           </table>
         </div>
       </div>
@@ -296,8 +382,8 @@
 
     <!-- 2. BACKTEST TAB -->
     <div id="tabBacktest" class="hidden space-y-6">
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+      <div class="glass-panel rounded-2xl p-5 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
           <div>
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <span>🧪</span> موتور بکتست مستقل با بازپخش زمانی (Zero Lookahead)
@@ -306,7 +392,7 @@
               شبیه‌سازی دقیق و بدون نگاه به آینده بر مبنای افق ارزیابی ۵ دقیقه‌ای باینری آپشن بر روی داده‌های تاریخی واقعی
             </p>
           </div>
-          <button onclick="runBacktestAction()" id="btnRunBt" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-md">
+          <button onclick="runBacktestAction()" id="btnRunBt" class="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs transition shadow-lg">
             ▶ اجرای بکتست
           </button>
         </div>
@@ -314,11 +400,11 @@
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4 text-xs">
           <div>
             <label class="block text-slate-300 font-medium mb-1">جفت‌ارز:</label>
-            <select id="btSymbol" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-mono"></select>
+            <select id="btSymbol" class="w-full glass-card-sub rounded-xl p-2.5 text-white font-mono outline-none"></select>
           </div>
           <div>
             <label class="block text-slate-300 font-medium mb-1">دوره زمانی تست:</label>
-            <select id="btPeriod" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white">
+            <select id="btPeriod" class="w-full glass-card-sub rounded-xl p-2.5 text-white outline-none">
               <option value="DEVELOPMENT">۱. دوره توسعه و طراحی (۶۰٪ نخست)</option>
               <option value="VALIDATION">۲. دوره اعتبارسنجی (۲۰٪ میانی)</option>
               <option value="OUT_OF_SAMPLE">۳. دوره آزمون دست‌نخورده (۲۰٪ پایانی)</option>
@@ -327,11 +413,11 @@
           </div>
           <div>
             <label class="block text-slate-300 font-medium mb-1">درصد سود خالص پرداخت (Payout %):</label>
-            <input type="number" id="btPayout" step="0.01" value="0.85" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-mono">
+            <input type="number" id="btPayout" step="0.01" value="0.85" class="w-full glass-card-sub rounded-xl p-2.5 text-white font-mono outline-none">
           </div>
           <div>
             <label class="block text-slate-300 font-medium mb-1">حدنصاب توافق فیلترها:</label>
-            <select id="btMinAgree" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white">
+            <select id="btMinAgree" class="w-full glass-card-sub rounded-xl p-2.5 text-white outline-none">
               <option value="3">حداقل ۳ از ۵ فیلتر</option>
               <option value="4" selected>حداقل ۴ از ۵ فیلتر (توصیه‌شده)</option>
               <option value="5">تطابق هر ۵ فیلتر</option>
@@ -355,49 +441,47 @@
   </main>
 
   <!-- ANDROID APP MODAL -->
-  <div id="androidModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative text-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="font-bold text-base text-white flex items-center gap-2">
-          <span>📱</span> راهنمای نسخه اندروید (Android Mobile Companion)
+  <div id="androidModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="glass-panel rounded-3xl w-full max-w-lg p-6 shadow-2xl relative text-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <h3 class="font-black text-base text-white flex items-center gap-2">
+          <span>📱</span> نسخه اندروید (Quotex Signals Android App)
         </h3>
         <button onclick="closeAndroidModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
 
       <div class="space-y-4 my-4 text-xs leading-relaxed">
-        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-          <h4 class="font-bold text-emerald-400 text-sm mb-1.5">روش اول: نصب مستقیم PWA (بدون نیاز به دانلود)</h4>
-          <p class="text-slate-300">
-            ۱. در مرورگر Chrome گوشی اندروید، همین آدرس را باز کنید.<br>
-            ۲. روی سه نقطه بالای مرورگر بزنید و <strong>«نصب برنامه» (Install app)</strong> را انتخاب کنید.<br>
-            ۳. اپلیکیشن با آیکون اختصاصی و لرزش ویبره هنگام سیگنال روی گوشی شما قرار می‌گیرد.
+        <div class="glass-card-sub p-3.5 rounded-2xl border border-emerald-500/30">
+          <h4 class="font-bold text-emerald-300 text-sm mb-1.5">فایل مستقیم نصبی APK (نسخه جدید شیشه‌ای)</h4>
+          <p class="text-slate-300 mb-3">
+            فایل کامپایل‌شده اپلیکیشن اندروید با رادار آماده‌باش لحظه‌ای، لرزش ویبره هنگام ستاپ، و اتصال خودکار ۲۴ ساعته ابری آماده است:
           </p>
+          <a href="/static/Quotex_Signals.apk" download class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold transition shadow-lg">
+            <span>📥</span> دانلود Quotex_Signals.apk (نسخه نهایی)
+          </a>
         </div>
 
-        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-          <h4 class="font-bold text-cyan-400 text-sm mb-1.5">روش دوم: دانلود مستقیم فایل نصبی APK</h4>
-          <p class="text-slate-300 mb-3">
-            فایل کامپایل‌شده اپلیکیشن نیتیو اندروید با سرعت فوق‌العاده و اعلان ویبره هوشمند آماده دانلود است.
+        <div class="glass-card-sub p-3.5 rounded-2xl border border-white/10">
+          <h4 class="font-bold text-cyan-300 text-sm mb-1.5">نصب مستقیم وب‌اپ (PWA)</h4>
+          <p class="text-slate-300">
+            در مرورگر Chrome گوشی، از منوی سه نقطه روی <strong>«Install app» یا «افزودن به صفحه اصلی»</strong> بزنید تا برنامه بدون نیاز به فایل نصبی روی گوشی اجرا شود.
           </p>
-          <a href="/static/Quotex_Signals.apk" download class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow">
-            <span>📥</span> دانلود فایل نصبی Quotex_Signals.apk (۵.۶ مگابایت)
-          </a>
         </div>
       </div>
 
-      <div class="flex justify-between items-center pt-3 border-t border-slate-800">
-        <a href="/static/Quotex_Signals.apk" download class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
-          <span>📥</span> دانلود مستقیم APK
+      <div class="flex justify-between items-center pt-3 border-t border-white/10">
+        <a href="/static/Quotex_Signals.apk" download class="text-xs text-emerald-400 hover:underline flex items-center gap-1 font-bold">
+          <span>📥</span> لینک مستقیم دانلود APK
         </a>
-        <button onclick="closeAndroidModal()" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs">متوجه شدم</button>
+        <button onclick="closeAndroidModal()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs">بستن</button>
       </div>
     </div>
   </div>
 
   <!-- MANUAL OUTCOME MODAL -->
-  <div id="manualModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative text-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+  <div id="manualModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="glass-panel rounded-3xl w-full max-w-md p-6 shadow-2xl relative text-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
         <h3 class="font-bold text-base text-white flex items-center gap-2">
           <span>📝</span> ثبت دستی نتیجه معامله در Quotex
         </h3>
@@ -405,46 +489,46 @@
       </div>
 
       <p class="text-xs text-slate-400 my-3 leading-relaxed">
-        برای ارزیابی و سنجش میزان انحراف مظنه، قیمتها و نتیجه واقعی را که در پلتفرم Quotex مشاهده کرده‌اید وارد کنید.
+        برای ارزیابی و سنجش انحراف مظنه، قیمتها و نتیجه واقعی را که در Quotex مشاهده کرده‌اید وارد کنید.
       </p>
 
       <form onsubmit="submitManualForm(event)" class="space-y-4 text-xs">
         <input type="hidden" id="modalSignalId">
-        <div id="modalSignalSummary" class="p-2 bg-slate-950 rounded border border-slate-800 text-slate-300 font-mono"></div>
+        <div id="modalSignalSummary" class="p-2.5 glass-card-sub rounded-xl border border-white/10 text-slate-300 font-mono"></div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-slate-300 font-medium mb-1">قیمت ورود در Quotex:</label>
-            <input type="number" step="any" id="modalEntryPrice" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-white">
+            <input type="number" step="any" id="modalEntryPrice" required class="w-full glass-card-sub rounded-xl p-2.5 font-mono text-white outline-none">
           </div>
           <div>
             <label class="block text-slate-300 font-medium mb-1">قیمت بسته شدن در Quotex:</label>
-            <input type="number" step="any" id="modalExpiryPrice" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-white">
+            <input type="number" step="any" id="modalExpiryPrice" required class="w-full glass-card-sub rounded-xl p-2.5 font-mono text-white outline-none">
           </div>
         </div>
 
         <div>
           <label class="block text-slate-300 font-medium mb-1">نتیجه اعلامی شما:</label>
           <div class="grid grid-cols-3 gap-2">
-            <button type="button" onclick="selectModalOutcome('WIN')" id="btnWin" class="py-2 rounded-lg font-bold border bg-emerald-600 text-white border-emerald-500">برد (WIN)</button>
-            <button type="button" onclick="selectModalOutcome('LOSS')" id="btnLoss" class="py-2 rounded-lg font-bold border bg-slate-950 text-slate-400 border-slate-800">باخت (LOSS)</button>
-            <button type="button" onclick="selectModalOutcome('TIE')" id="btnTie" class="py-2 rounded-lg font-bold border bg-slate-950 text-slate-400 border-slate-800">مساوی (TIE)</button>
+            <button type="button" onclick="selectModalOutcome('WIN')" id="btnWin" class="py-2 rounded-xl font-bold border bg-emerald-600 text-white border-emerald-500">برد (WIN)</button>
+            <button type="button" onclick="selectModalOutcome('LOSS')" id="btnLoss" class="py-2 rounded-xl font-bold border glass-card-sub text-slate-400 border-white/10">باخت (LOSS)</button>
+            <button type="button" onclick="selectModalOutcome('TIE')" id="btnTie" class="py-2 rounded-xl font-bold border glass-card-sub text-slate-400 border-white/10">مساوی (TIE)</button>
           </div>
         </div>
 
         <div>
           <label class="block text-slate-300 font-medium mb-1">منبع قیمت:</label>
-          <input type="text" id="modalPriceSource" value="Quotex Web Platform (مشاهده دستی)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white">
+          <input type="text" id="modalPriceSource" value="Quotex Web Platform (مشاهده دستی)" class="w-full glass-card-sub rounded-xl p-2.5 text-white outline-none">
         </div>
 
         <div>
           <label class="block text-slate-300 font-medium mb-1">یادداشت تحلیلگر:</label>
-          <textarea id="modalNotes" rows="2" placeholder="توضیحات اختیاری..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white"></textarea>
+          <textarea id="modalNotes" rows="2" placeholder="توضیحات اختیاری..." class="w-full glass-card-sub rounded-xl p-2.5 text-white outline-none"></textarea>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button type="button" onclick="closeManualModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">انصراف</button>
-          <button type="submit" id="btnSubmitManual" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium">ثبت در ژورنال</button>
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+          <button type="button" onclick="closeManualModal()" class="px-4 py-2 rounded-xl glass-card-sub hover:bg-slate-800 text-slate-300">انصراف</button>
+          <button type="submit" id="btnSubmitManual" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold">ثبت در ژورنال</button>
         </div>
       </form>
     </div>
@@ -460,15 +544,17 @@
     let modalOutcomeChoice = 'WIN';
     let countdownTimer = null;
     let autoRefreshTimer = null;
-    let autoRefreshCount = 10;
+    let scannerPollTimer = null;
+    let autoRefreshCount = 3;
     let lastSignalId = null;
+    let lastPreSignalKey = null;
     let audioAlertEnabled = false;
     let audioCtx = null;
     let deferredPwaPrompt = null;
 
     const symbols = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CHF', 'USD/CAD', 'NZD/USD'];
 
-    // Web Audio API Synthesizer (Zero External File Dependencies)
+    // Web Audio API Synthesizer
     function initAudioContext() {
       if (!audioCtx) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -489,6 +575,8 @@
             navigator.vibrate([150, 80, 250]);
           } else if (type === 'PUT') {
             navigator.vibrate([350]);
+          } else if (type === 'PRE_SIGNAL') {
+            navigator.vibrate([120, 60, 120, 60, 200]);
           }
         } catch (e) {}
       }
@@ -516,20 +604,32 @@
           osc.frequency.setValueAtTime(523.25, now);
           osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
           gain.gain.setValueAtTime(0.01, now);
-          gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          gain.gain.linearRampToValueAtTime(0.35, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
           osc.start(now);
-          osc.stop(now + 0.4);
+          osc.stop(now + 0.45);
         } else if (type === 'PUT') {
           // Descending dual tone for PUT (E5 659Hz -> A4 440Hz)
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(659.25, now);
           osc.frequency.exponentialRampToValueAtTime(440.0, now + 0.18);
           gain.gain.setValueAtTime(0.01, now);
-          gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+          gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
           osc.start(now);
-          osc.stop(now + 0.45);
+          osc.stop(now + 0.5);
+        } else if (type === 'PRE_SIGNAL') {
+          // Fast alerting double chime for PRE-SIGNAL readiness
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880.0, now);
+          osc.frequency.setValueAtTime(1046.5, now + 0.12);
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.35, now + 0.04);
+          gain.gain.linearRampToValueAtTime(0.05, now + 0.11);
+          gain.gain.linearRampToValueAtTime(0.35, now + 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
         }
       } catch (err) {
         console.warn('Audio play failed:', err);
@@ -544,40 +644,41 @@
       const text = document.getElementById('audioText');
 
       if (audioAlertEnabled) {
-        btn.className = 'px-3 py-1 rounded-lg border font-medium transition shadow flex items-center gap-1.5 bg-emerald-950/40 text-emerald-300 border-emerald-600 hover:bg-emerald-900/60';
+        btn.className = 'px-3 py-1.5 rounded-xl border font-bold transition shadow-md flex items-center gap-1.5 bg-emerald-950/40 text-emerald-300 border-emerald-500/50 hover:bg-emerald-900/60';
         icon.textContent = '🔊';
         text.textContent = 'هشدار صوتی: فعال';
-        playChime('CALL');
+        playChime('PRE_SIGNAL');
       } else {
-        btn.className = 'px-3 py-1 rounded-lg border font-medium transition shadow flex items-center gap-1.5 bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700';
+        btn.className = 'px-3 py-1.5 rounded-xl border font-bold transition shadow-md flex items-center gap-1.5 glass-card-sub text-slate-300 border-white/10 hover:border-cyan-500/40';
         icon.textContent = '🔇';
         text.textContent = 'هشدار صوتی: غیرفعال';
       }
     }
 
-    function showToast(sig) {
+    function showToast(titleText, bodyText, iconSym = '⚡', glowType = 'CALL') {
       const toast = document.getElementById('signalToast');
       const icon = document.getElementById('toastIcon');
       const title = document.getElementById('toastTitle');
       const body = document.getElementById('toastBody');
       const time = document.getElementById('toastTime');
 
-      const isCall = sig.direction === 'CALL';
-      const isPut = sig.direction === 'PUT';
-      if (!isCall && !isPut) return;
+      icon.textContent = iconSym;
+      title.textContent = titleText;
+      body.textContent = bodyText;
+      time.textContent = new Date().toLocaleTimeString();
 
-      toast.className = `fixed top-4 right-4 z-50 max-w-sm w-full bg-slate-900 border-2 rounded-xl p-4 shadow-2xl transition-all transform duration-300 ${isCall ? 'border-emerald-500 shadow-emerald-950/40' : 'border-rose-500 shadow-rose-950/40'}`;
-      icon.textContent = isCall ? '🟢' : '🔴';
-      title.textContent = `سیگنال ${sig.direction} صادر شد (${sig.symbol})`;
-      body.textContent = `قیمت مرجع: ${sig.entry_price} | توافق فیلترها: ${sig.rule_agreement_score}%`;
-      time.textContent = new Date(sig.created_at).toLocaleTimeString();
+      if (glowType === 'CALL') {
+        toast.className = 'fixed top-5 right-5 z-50 max-w-sm w-full glass-panel glass-glow-call rounded-2xl p-4 shadow-2xl transition-all transform duration-300';
+      } else if (glowType === 'PUT') {
+        toast.className = 'fixed top-5 right-5 z-50 max-w-sm w-full glass-panel glass-glow-put rounded-2xl p-4 shadow-2xl transition-all transform duration-300';
+      } else {
+        toast.className = 'fixed top-5 right-5 z-50 max-w-sm w-full glass-panel glass-glow-pre rounded-2xl p-4 shadow-2xl transition-all transform duration-300';
+      }
 
       toast.classList.remove('hidden');
-      playChime(sig.direction);
-
       setTimeout(() => {
         dismissToast();
-      }, 12000);
+      }, 10000);
     }
 
     function dismissToast() {
@@ -626,7 +727,7 @@
         const btn = document.createElement('button');
         btn.textContent = sym;
         btn.id = `btn_sym_${sym.replace('/', '_')}`;
-        btn.className = `px-2.5 py-1 rounded font-mono font-medium transition ${sym === currentSymbol ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800'}`;
+        btn.className = `px-2.5 py-1 rounded-lg font-mono font-bold transition ${sym === currentSymbol ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800'}`;
         btn.onclick = () => selectSymbol(sym);
         container.appendChild(btn);
 
@@ -645,11 +746,11 @@
     function switchTab(tab) {
       ['dashboard', 'backtest', 'analytics', 'settings'].forEach(t => {
         document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.add('hidden');
-        document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).className = 'px-3.5 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white whitespace-nowrap';
+        document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).className = 'px-3.5 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white whitespace-nowrap';
       });
 
       document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.remove('hidden');
-      document.getElementById(`tabBtn${tab.charAt(0).toUpperCase() + tab.slice(1)}`).className = 'px-3.5 py-1.5 rounded-md font-medium transition bg-blue-600 text-white whitespace-nowrap';
+      document.getElementById(`tabBtn${tab.charAt(0).toUpperCase() + tab.slice(1)}`).className = 'px-3.5 py-1.5 rounded-lg font-bold transition bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow whitespace-nowrap';
 
       if (tab === 'analytics') loadAnalytics();
       if (tab === 'settings') loadSettings();
@@ -659,7 +760,7 @@
       currentSymbol = sym;
       symbols.forEach(s => {
         const btn = document.getElementById(`btn_sym_${s.replace('/', '_')}`);
-        if (btn) btn.className = `px-2.5 py-1 rounded font-mono font-medium transition ${s === currentSymbol ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800'}`;
+        if (btn) btn.className = `px-2.5 py-1 rounded-lg font-mono font-bold transition ${s === currentSymbol ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800'}`;
       });
       document.getElementById('chartSymbolTitle').textContent = sym;
       loadCandles();
@@ -670,11 +771,90 @@
       currentTimeframe = tf;
       ['M1', 'M5', 'M15'].forEach(t => {
         const btn = document.getElementById(`tf_${t}`);
-        if (btn) btn.className = `px-2.5 py-1 rounded font-mono font-medium transition ${t === tf ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800'}`;
+        if (btn) btn.className = `px-2.5 py-1 rounded-lg font-mono font-bold transition ${t === tf ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800'}`;
       });
       document.getElementById('chartTfTitle').textContent = tf;
       loadCandles();
       analyzeCurrent();
+    }
+
+    // High-Speed Multi-Pair Scanner Polling
+    async function runFastScanner() {
+      try {
+        const res = await fetch('/api/signals/scanner');
+        if (!res.ok) return;
+        const data = await res.json();
+        renderRadarStrip(data);
+      } catch (err) {
+        console.warn('Fast scanner poll failed:', err);
+      }
+    }
+
+    function renderRadarStrip(scannerData) {
+      const container = document.getElementById('radarPairsStrip');
+      const topMsg = document.getElementById('radarTopMessage');
+      if (!container || !scannerData || !scannerData.items) return;
+
+      const items = scannerData.items;
+      let activeAlert = null;
+
+      container.innerHTML = items.map(item => {
+        const isSelected = item.symbol === currentSymbol;
+        let badgeColor = 'bg-slate-800 text-slate-400 border-white/5';
+        let dotColor = 'bg-slate-500';
+        let statusText = 'پایش';
+
+        if (item.status_badge === 'SIGNAL_ACTIVE') {
+          if (item.direction === 'CALL') {
+            badgeColor = 'bg-emerald-950/60 text-emerald-300 border-emerald-500/50 shadow-sm shadow-emerald-500/40';
+            dotColor = 'bg-emerald-400 pulse-fast';
+            statusText = 'CALL 🟢';
+          } else {
+            badgeColor = 'bg-rose-950/60 text-rose-300 border-rose-500/50 shadow-sm shadow-rose-500/40';
+            dotColor = 'bg-rose-400 pulse-fast';
+            statusText = 'PUT 🔴';
+          }
+          if (!activeAlert) activeAlert = item;
+        } else if (item.status_badge === 'PRE_SIGNAL_READY') {
+          badgeColor = 'bg-amber-950/60 text-amber-300 border-amber-500/50 shadow-sm shadow-amber-500/40';
+          dotColor = 'bg-amber-400 radar-pulse';
+          statusText = `آماده‌باش ${item.pre_signal_direction === 'CALL' ? '▲' : '▼'} (${Math.round(item.readiness_score)}%)`;
+          if (!activeAlert) activeAlert = item;
+        }
+
+        const borderActive = isSelected ? 'ring-1 ring-cyan-400' : '';
+
+        return `
+          <button onclick="selectSymbol('${item.symbol}')" class="px-2.5 py-1 rounded-xl text-[11px] font-mono flex items-center gap-1.5 border transition ${badgeColor} ${borderActive}">
+            <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+            <strong>${item.symbol}</strong>
+            <span class="text-[10px] font-sans opacity-90">${statusText}</span>
+          </button>
+        `;
+      }).join('');
+
+      if (activeAlert) {
+        if (activeAlert.status_badge === 'SIGNAL_ACTIVE') {
+          topMsg.innerHTML = `<span class="text-emerald-400 font-bold">سیگنال قطعی ورود ${activeAlert.direction} روی ${activeAlert.symbol}!</span> آماده ثبت در ثانیه ۰ ابتدای کندل.`;
+        } else if (activeAlert.status_badge === 'PRE_SIGNAL_READY') {
+          topMsg.innerHTML = `<span class="text-amber-300 font-bold">⚡ آماده‌باش ${activeAlert.symbol}:</span> ستاپ ${activeAlert.pre_signal_direction} در آستانه تایید (${Math.round(activeAlert.readiness_score)}%) - برای کندل بعدی آماده باشید!`;
+          
+          // Sound chime if newly discovered pre-signal
+          const preKey = `${activeAlert.symbol}_${activeAlert.pre_signal_direction}_${Math.round(activeAlert.readiness_score / 5)}`;
+          if (lastPreSignalKey !== preKey) {
+            lastPreSignalKey = preKey;
+            playChime('PRE_SIGNAL');
+            showToast(
+              `⚡ هشدار آماده‌باش ورود (${activeAlert.symbol})`,
+              `ستاپ ${activeAlert.pre_signal_direction} در آستانه صدور! برای ثانیه ۰ کندل بعدی آماده باشید.`,
+              '⚡',
+              'PRE_SIGNAL'
+            );
+          }
+        }
+      } else {
+        topMsg.textContent = 'تمام ۷ جفت‌ارز در حال پایش؛ بازار در وضعیت پایدار و فاقد ریسک است.';
+      }
     }
 
     async function fetchMarketStatus() {
@@ -689,11 +869,11 @@
 
         if (st.status === 'LIVE') {
           badge.className = 'px-2.5 py-1 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5';
-          badgeText.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-slow"></span> جریان زنده Twelve Data';
+          badgeText.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-fast"></span> جریان زنده بین‌بانکی Twelve Data';
           chartSource.textContent = 'منبع: Twelve Data Live Stream (رسمی)';
         } else if (st.status === 'REAL_DELAYED') {
           badge.className = 'px-2.5 py-1 rounded-full font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5';
-          badgeText.innerHTML = '<span class="w-2 h-2 rounded-full bg-cyan-400 pulse-slow"></span> داده بین‌بانکی رسمی (Real Interbank)';
+          badgeText.innerHTML = '<span class="w-2 h-2 rounded-full bg-cyan-400 pulse-fast"></span> داده بین‌بانکی رسمی (Real Interbank)';
           chartSource.textContent = 'منبع: فید رسمی بین‌بانکی فارکس (Cboe/Yahoo)';
         } else if (st.status === 'MARKET_CLOSED') {
           badge.className = 'px-2.5 py-1 rounded-full font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5';
@@ -743,8 +923,18 @@
       const chartW = w - padRight;
       const chartH = h - padBottom - padTop;
 
-      ctx.fillStyle = '#0B0F19';
+      ctx.fillStyle = '#050814';
       ctx.fillRect(0, 0, w, h);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      for (let y = padTop; y < h - padBottom; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(chartW, y);
+        ctx.stroke();
+      }
 
       let minP = Infinity, maxP = -Infinity;
       candles.forEach(c => {
@@ -752,45 +942,24 @@
         if (c.high > maxP) maxP = c.high;
       });
 
-      const range = maxP - minP || 0.001;
-      minP -= range * 0.08;
-      maxP += range * 0.08;
-      const effRange = maxP - minP;
+      const pRange = maxP - minP || 0.001;
+      const getY = p => padTop + chartH - ((p - minP) / pRange) * chartH;
 
-      const getY = p => padTop + chartH - ((p - minP) / effRange) * chartH;
-
-      // Price Grid Lines
-      ctx.strokeStyle = '#1E293B';
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= 5; i++) {
-        const pVal = minP + (effRange / 5) * i;
-        const y = getY(pVal);
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(chartW, y);
-        ctx.stroke();
-
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '10px monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(pVal.toFixed(currentSymbol.includes('JPY') ? 3 : 5), chartW + 8, y + 3);
-      }
-
-      // Draw Candlesticks
       const n = candles.length;
-      const sp = chartW / n;
-      const bw = Math.max(2.5, sp * 0.7);
+      const step = chartW / n;
+      const bw = Math.max(2, step * 0.65);
 
       candles.forEach((c, i) => {
-        const x = i * sp + sp / 2;
+        const x = i * step + step / 2;
         const oy = getY(c.open);
         const cy = getY(c.close);
         const hy = getY(c.high);
         const ly = getY(c.low);
-        const bull = c.close >= c.open;
-        const col = bull ? '#10B981' : '#EF4444';
 
-        // Wick
+        const isUp = c.close >= c.open;
+        const col = isUp ? '#10B981' : '#F43F5E';
+
+        // Wicks
         ctx.strokeStyle = col;
         ctx.lineWidth = 1.2;
         ctx.beginPath();
@@ -798,7 +967,7 @@
         ctx.lineTo(x, ly);
         ctx.stroke();
 
-        // Body
+        // Candle Body
         ctx.fillStyle = col;
         ctx.fillRect(x - bw / 2, Math.min(oy, cy), bw, Math.max(2, Math.abs(cy - oy)));
 
@@ -814,7 +983,7 @@
       // Last price line & marker
       const last = candles[candles.length - 1];
       const lY = getY(last.close);
-      ctx.strokeStyle = '#0284C7';
+      ctx.strokeStyle = '#06B6D4';
       ctx.setLineDash([3, 3]);
       ctx.beginPath();
       ctx.moveTo(0, lY);
@@ -822,9 +991,9 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      ctx.fillStyle = '#0284C7';
+      ctx.fillStyle = '#06B6D4';
       ctx.fillRect(chartW, lY - 9, padRight, 18);
-      ctx.fillStyle = '#FFFFFF';
+      ctx.fillStyle = '#020617';
       ctx.font = 'bold 10px monospace';
       ctx.textAlign = 'center';
       ctx.fillText(last.close.toFixed(currentSymbol.includes('JPY') ? 3 : 5), chartW + 37, lY + 4);
@@ -845,6 +1014,7 @@
         renderFilters(currentSignal.filters || []);
         renderFearAndGreed(currentSignal.fear_and_greed);
         renderCsmWidget(currentSignal.currency_strength);
+        renderSmcCard(currentSignal.filters || []);
         loadRecentSignals();
         fetchMarketStatus();
 
@@ -852,14 +1022,41 @@
         if (currentSignal && currentSignal.direction !== 'NO TRADE') {
           if (lastSignalId !== currentSignal.id) {
             lastSignalId = currentSignal.id;
-            showToast(currentSignal);
+            playChime(currentSignal.direction);
+            showToast(
+              `سیگنال قطعی ${currentSignal.direction} (${currentSignal.symbol})`,
+              `قیمت مرجع: ${currentSignal.entry_price} | توافق فیلترها: ${currentSignal.rule_agreement_score}%`,
+              currentSignal.direction === 'CALL' ? '🟢' : '🔴',
+              currentSignal.direction
+            );
           }
         }
       } catch (e) {
         console.error('Analyze error:', e);
       } finally {
-        btn.textContent = `🔄 تحلیل مجدد (${autoRefreshCount}s)`;
+        btn.textContent = `🔄 بروزرسانی (${autoRefreshCount}s)`;
         btn.disabled = false;
+      }
+    }
+
+    function renderSmcCard(filters) {
+      const smcFilter = filters.find(f => f.filter_number === 10);
+      const textEl = document.getElementById('smcSummaryText');
+      const fvgVal = document.getElementById('smcFvgVal');
+      const obVal = document.getElementById('smcObVal');
+      const sweepVal = document.getElementById('smcSweepVal');
+
+      if (smcFilter && smcFilter.indicator_values) {
+        const vals = smcFilter.indicator_values;
+        fvgVal.textContent = vals.has_fvg ? 'تایید FVG ✅' : 'فاقد FVG';
+        obVal.textContent = vals.has_order_block ? 'اردر بلاک فعال 🏦' : 'بدون برخورد';
+        sweepVal.textContent = vals.has_sweep ? 'استاپ‌هانت ⚡' : 'نرمال';
+        textEl.textContent = smcFilter.explanation || 'ساختار جریان سفارشات نهادی تحت ارزیابی است.';
+      } else {
+        fvgVal.textContent = '--';
+        obVal.textContent = '--';
+        sweepVal.textContent = '--';
+        textEl.textContent = 'اطلاعات اسمارت مانی در دسترس نیست.';
       }
     }
 
@@ -873,12 +1070,11 @@
 
       scoreEl.textContent = Math.round(score);
       badgeEl.textContent = fg.state_fa || fg.state;
-      badgeEl.style.backgroundColor = `${fg.color}20`;
+      badgeEl.style.backgroundColor = `${fg.color}25`;
       badgeEl.style.color = fg.color;
-      badgeEl.style.borderColor = `${fg.color}40`;
+      badgeEl.style.borderColor = `${fg.color}50`;
       descEl.textContent = fg.description;
 
-      // Stroke dashoffset: 251.2 * (1 - score / 100)
       const offset = 251.2 * (1.0 - score / 100.0);
       circleEl.style.strokeDashoffset = offset;
       circleEl.style.stroke = fg.color;
@@ -897,14 +1093,14 @@
 
       container.innerHTML = csm.ranking.map(item => {
         const pct = Math.min(100, Math.max(5, (item.strength / 10.0) * 100));
-        const col = item.strength >= 6.5 ? 'bg-emerald-500' : item.strength <= 3.5 ? 'bg-rose-500' : 'bg-cyan-500';
+        const col = item.strength >= 6.5 ? 'bg-emerald-400 shadow-sm shadow-emerald-400' : item.strength <= 3.5 ? 'bg-rose-400 shadow-sm shadow-rose-400' : 'bg-cyan-400 shadow-sm shadow-cyan-400';
         return `
-          <div class="bg-slate-950 p-2 rounded border border-slate-800 flex flex-col justify-between">
+          <div class="glass-card-sub p-2 rounded-xl flex flex-col justify-between">
             <div class="flex justify-between font-mono font-bold mb-1">
               <span class="text-white">${item.currency}</span>
               <span class="text-slate-400">${item.strength}</span>
             </div>
-            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <div class="w-full bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
               <div class="${col} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
             </div>
           </div>
@@ -918,42 +1114,62 @@
 
       const isCall = sig.direction === 'CALL';
       const isPut = sig.direction === 'PUT';
-      const borderClass = isCall ? 'border-emerald-500/50 bg-emerald-950/20' : isPut ? 'border-rose-500/50 bg-rose-950/20' : 'border-slate-800 bg-slate-900';
-      const badgeClass = isCall ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : isPut ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/50' : 'bg-slate-800 text-slate-300';
-      const dirText = isCall ? '▲ CALL (خرید ۵ دقیقه)' : isPut ? '▼ PUT (فروش ۵ دقیقه)' : '⛔ NO TRADE (عدم ورود)';
+      const isPre = sig.is_pre_signal === true;
+
+      let borderClass = 'glass-panel';
+      let badgeClass = 'glass-card-sub text-slate-300';
+      let dirText = '⛔ NO TRADE (عدم ورود)';
+
+      if (isCall) {
+        borderClass = 'glass-panel glass-glow-call';
+        badgeClass = 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/40 font-black';
+        dirText = '▲ CALL (خرید ۵ دقیقه)';
+      } else if (isPut) {
+        borderClass = 'glass-panel glass-glow-put';
+        badgeClass = 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 font-black';
+        dirText = '▼ PUT (فروش ۵ دقیقه)';
+      } else if (isPre) {
+        borderClass = 'glass-panel glass-glow-pre';
+        badgeClass = 'bg-amber-400 text-slate-950 shadow-lg shadow-amber-400/40 font-black';
+        dirText = `⚡ آماده‌باش ${sig.pre_signal_direction === 'CALL' ? 'خرید (CALL)' : 'فروش (PUT)'}`;
+      }
 
       box.innerHTML = `
-        <div class="rounded-xl border p-5 shadow-xl ${borderClass}">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
-            <div class="px-3 py-1.5 rounded-lg font-black text-lg ${badgeClass}">
+        <div class="rounded-3xl p-5 shadow-2xl ${borderClass}">
+          <div class="flex items-center justify-between pb-3 border-b border-white/10">
+            <div class="px-3.5 py-1.5 rounded-xl text-base ${badgeClass}">
               ${dirText}
             </div>
             <div class="text-left font-mono">
-              <div class="text-[11px] text-slate-400">امتیاز توافق قوانین:</div>
-              <div class="text-lg font-bold text-cyan-400">${sig.rule_agreement_score}%</div>
+              <div class="text-[11px] text-slate-400">${isPre ? 'درصد آمادگی ستاپ:' : 'امتیاز توافق قوانین:'}</div>
+              <div class="text-lg font-black text-cyan-400">${isPre ? Math.round(sig.readiness_score) : sig.rule_agreement_score}%</div>
             </div>
           </div>
 
+          <!-- Execution parameters for Quotex -->
           <div class="grid grid-cols-2 gap-2 my-3 text-xs">
-            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+            <div class="glass-card-sub p-2.5 rounded-xl border border-white/5">
               <div class="text-slate-400 text-[11px]">قیمت مرجع بازار:</div>
               <div class="font-bold text-white font-mono text-sm">${sig.entry_price ? sig.entry_price.toFixed(sig.symbol.includes('JPY') ? 3 : 5) : '---'}</div>
             </div>
-            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
-              <div class="text-slate-400 text-[11px]">شمارش معکوس ۵ دقیقه:</div>
-              <div id="countdownEl" class="font-bold text-amber-400 font-mono text-sm">--:--</div>
+            <div class="glass-card-sub p-2.5 rounded-xl border border-white/5">
+              <div class="text-slate-400 text-[11px]">شمارش معکوس کندل:</div>
+              <div id="countdownEl" class="font-bold text-amber-300 font-mono text-sm">--:--</div>
             </div>
           </div>
 
-          <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800 text-xs text-slate-300 leading-relaxed mb-3">
-            <span class="font-bold text-slate-400">استدلال تحلیلی: </span>${sig.decision_reason}
+          <!-- Strategy details & Pre-signal alert message -->
+          <div class="glass-card-sub p-3 rounded-xl border border-white/5 text-xs text-slate-200 leading-relaxed mb-3">
+            <span class="font-bold text-cyan-300">استدلال تحلیلی: </span>${sig.decision_reason || sig.pre_signal_message}
           </div>
 
-          <div class="p-2.5 bg-blue-950/30 rounded-lg border border-blue-800/40 text-[11px] text-blue-300 mb-3">
-            <strong>⏱️ تایمینگ دقیق ورود:</strong> ${sig.micro_timing_tip || 'ثانیه ۰ تا ۵ ابتدای کندل ۵ دقیقه‌ای در Quotex'}
+          <!-- Specific Timing & Expiration Guidance -->
+          <div class="p-3 rounded-xl glass-card-sub border border-cyan-400/20 text-[11px] text-cyan-200 mb-3 space-y-1">
+            <div><strong>🎯 تایم‌فریم و انقضای معامله:</strong> ${sig.recommended_expiry_description || 'انقضای ۵ دقیقه در کوتکس (پایان کندل M5)'}</div>
+            <div><strong>⏱️ زمان‌بندی کلیک:</strong> ${sig.timing_guide || 'در ثانیه ۰ تا ۳ شروع کندل جدید کلیک کنید.'}</div>
           </div>
 
-          <button onclick="openManualModal('${sig.id}')" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition shadow flex items-center justify-center gap-1.5">
+          <button onclick="openManualModal('${sig.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-1.5">
             📝 ثبت دستی نتیجه در Quotex (ژورنال)
           </button>
         </div>
@@ -983,20 +1199,20 @@
     function renderFilters(filters) {
       const box = document.getElementById('filtersContainer');
       box.innerHTML = `
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-sm font-bold text-slate-200">
-          <span class="flex items-center gap-2"><span>🛡️</span> وضعیت ۹ فیلتر اعتبارسنجی مستقل استراتژی (سیستم Sniper)</span>
-          <span class="text-xs text-slate-400 font-normal">شامل روند، مومنتوم، واگرایی، بولینگر، قدرت ارزها و سشن</span>
+        <div class="flex items-center justify-between pb-3 border-b border-white/10 text-sm font-black text-slate-200">
+          <span class="flex items-center gap-2"><span>🛡️</span> وضعیت ۱۱ فیلتر اعتبارسنجی Sniper (با تاییدیه SMC و اسیلاتورها)</span>
+          <span class="text-xs text-slate-400 font-normal">SMC/FVG + Order Blocks + واگرایی + استوکاستیک + CCI + قدرت ارزها</span>
         </div>
-        <div class="divide-y divide-slate-800/80 mt-2">
+        <div class="divide-y divide-white/5 mt-2">
           ${filters.map(f => `
             <div class="py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
               <div class="flex items-center gap-2">
-                <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold">${f.filter_number}</span>
-                <span class="font-semibold text-slate-200">${f.filter_name}</span>
+                <span class="w-5 h-5 rounded-lg glass-card-sub text-slate-300 flex items-center justify-center font-bold text-[10px]">${f.filter_number}</span>
+                <span class="font-bold text-slate-200">${f.filter_name}</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-slate-400 font-mono">${f.detected_direction || 'NEUTRAL'}</span>
-                <span class="px-2 py-0.5 rounded font-bold ${f.status === 'PASS' ? 'bg-emerald-500/20 text-emerald-400' : f.status === 'WARN' ? 'bg-amber-500/20 text-amber-400' : 'bg-rose-500/20 text-rose-400'}">
+                <span class="text-slate-400 font-mono text-[11px]">${f.detected_direction || 'NEUTRAL'}</span>
+                <span class="px-2.5 py-0.5 rounded-full font-bold ${f.status === 'PASS' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : f.status === 'WARN' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
                   ${f.status === 'PASS' ? 'تأیید شد' : f.status === 'WARN' ? 'هشدار' : 'رد شد'}
                 </span>
               </div>
@@ -1029,18 +1245,18 @@
       });
 
       tbody.innerHTML = filtered.map(s => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="py-2 px-3 text-slate-400">${new Date(s.created_at).toLocaleTimeString()}</td>
-          <td class="py-2 px-3 font-bold text-white">${s.symbol}</td>
-          <td class="py-2 px-3">
-            <span class="px-2 py-0.5 rounded font-bold ${s.direction === 'CALL' ? 'bg-emerald-500/20 text-emerald-400' : s.direction === 'PUT' ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-800 text-slate-400'}">${s.direction}</span>
+        <tr class="hover:bg-slate-800/30 transition">
+          <td class="py-2.5 px-3 text-slate-400">${new Date(s.created_at).toLocaleTimeString()}</td>
+          <td class="py-2.5 px-3 font-bold text-white">${s.symbol}</td>
+          <td class="py-2.5 px-3">
+            <span class="px-2 py-0.5 rounded-full font-bold ${s.direction === 'CALL' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : s.direction === 'PUT' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'glass-card-sub text-slate-400'}">${s.direction}</span>
           </td>
-          <td class="py-2 px-3 text-slate-300">${s.entry_price ? s.entry_price.toFixed(s.symbol.includes('JPY') ? 3 : 5) : '---'}</td>
-          <td class="py-2 px-3 text-cyan-400 font-bold">${s.rule_agreement_score}%</td>
-          <td class="py-2 px-3">${s.algorithmic_outcome ? (s.algorithmic_outcome === 'WIN' ? '<span class="text-emerald-400 font-bold">WIN</span>' : s.algorithmic_outcome === 'LOSS' ? '<span class="text-rose-400 font-bold">LOSS</span>' : '<span class="text-slate-400">TIE</span>') : '<span class="text-slate-500">در جریان</span>'}</td>
-          <td class="py-2 px-3">${s.manual_outcome ? `<span class="px-2 py-0.5 rounded font-bold ${s.manual_outcome.user_reported_outcome === 'WIN' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${s.manual_outcome.user_reported_outcome}</span>` : '<span class="text-slate-500">ثبت نشده</span>'}</td>
-          <td class="py-2 px-3 text-center">
-            <button onclick="openManualModal('${s.id}')" class="px-2 py-1 rounded bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 text-[11px]">
+          <td class="py-2.5 px-3 text-slate-300 font-mono">${s.entry_price ? s.entry_price.toFixed(s.symbol.includes('JPY') ? 3 : 5) : '---'}</td>
+          <td class="py-2.5 px-3 text-cyan-400 font-bold font-mono">${s.rule_agreement_score}%</td>
+          <td class="py-2.5 px-3">${s.algorithmic_outcome ? (s.algorithmic_outcome === 'WIN' ? '<span class="text-emerald-400 font-bold">WIN</span>' : s.algorithmic_outcome === 'LOSS' ? '<span class="text-rose-400 font-bold">LOSS</span>' : '<span class="text-slate-400">TIE</span>') : '<span class="text-slate-500">در جریان</span>'}</td>
+          <td class="py-2.5 px-3">${s.manual_outcome ? `<span class="px-2 py-0.5 rounded-full font-bold ${s.manual_outcome.user_reported_outcome === 'WIN' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${s.manual_outcome.user_reported_outcome}</span>` : '<span class="text-slate-500">ثبت نشده</span>'}</td>
+          <td class="py-2.5 px-3 text-center">
+            <button onclick="openManualModal('${s.id}')" class="px-2.5 py-1 rounded-lg glass-card-sub hover:bg-indigo-600/50 text-indigo-300 text-[11px] font-bold">
               ${s.manual_outcome ? 'ویرایش' : 'ثبت Quotex'}
             </button>
           </td>
@@ -1067,7 +1283,7 @@
       modalOutcomeChoice = out;
       ['WIN', 'LOSS', 'TIE'].forEach(o => {
         const btn = document.getElementById(`btn${o.charAt(0) + o.slice(1).toLowerCase()}`);
-        if (btn) btn.className = `py-2 rounded-lg font-bold border transition ${o === out ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-950 text-slate-400 border-slate-800'}`;
+        if (btn) btn.className = `py-2 rounded-xl font-bold border transition ${o === out ? 'bg-blue-600 text-white border-blue-500' : 'glass-card-sub text-slate-400 border-white/10'}`;
       });
     }
 
@@ -1131,30 +1347,30 @@
       box.classList.remove('hidden');
       box.innerHTML = `
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+          <div class="glass-panel p-4 rounded-2xl text-center">
             <div class="text-xs text-slate-400 mb-1">نرخ برد (Win Rate)</div>
             <div class="text-2xl font-black font-mono ${r.win_rate >= r.break_even_rate ? 'text-emerald-400' : 'text-rose-400'}">${r.win_rate}%</div>
             <div class="text-[10px] text-slate-500 mt-1 font-mono">سر‌به‌سر: ${r.break_even_rate}%</div>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+          <div class="glass-panel p-4 rounded-2xl text-center">
             <div class="text-xs text-slate-400 mb-1">فاصله اطمینان ویلسون</div>
             <div class="text-sm font-bold font-mono text-cyan-400 mt-2">[${r.wilson_ci_lower}% - ${r.wilson_ci_upper}%]</div>
             <div class="text-[10px] text-slate-500 mt-1">95% Confidence</div>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+          <div class="glass-panel p-4 rounded-2xl text-center">
             <div class="text-xs text-slate-400 mb-1">سود خالص شبیه‌سازی</div>
             <div class="text-xl font-black font-mono ${r.net_simulated_return >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${r.net_simulated_return > 0 ? `+${r.net_simulated_return}` : r.net_simulated_return} U</div>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+          <div class="glass-panel p-4 rounded-2xl text-center">
             <div class="text-xs text-slate-400 mb-1">بیشترین باخت متوالی</div>
             <div class="text-2xl font-black font-mono text-amber-400">${r.max_consecutive_losses}</div>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+          <div class="glass-panel p-4 rounded-2xl text-center">
             <div class="text-xs text-slate-400 mb-1">تعداد سیگنال ارزیابی‌شده</div>
             <div class="text-2xl font-black font-mono text-white">${r.win_count + r.loss_count}</div>
             <div class="text-[10px] text-slate-500 font-mono">${r.win_count} برد | ${r.loss_count} باخت</div>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+          <div class="glass-panel p-4 rounded-2xl text-center">
             <div class="text-xs text-slate-400 mb-1">تفکیک CALL / PUT</div>
             <div class="text-sm font-bold font-mono text-slate-200 mt-2">${r.call_signals} C / ${r.put_signals} P</div>
           </div>
@@ -1169,16 +1385,16 @@
         const res = await fetch('/api/analytics/summary');
         const d = await res.json();
         box.innerHTML = `
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+          <div class="glass-panel rounded-2xl p-5 shadow-2xl">
             <h2 class="text-base font-bold text-white mb-4">📈 ژورنال و مقایسه عملکرد</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div class="glass-card-sub p-4 rounded-2xl border border-white/5">
                 <div class="text-cyan-400 font-bold mb-2">🤖 ارزیابی خودکار الگوریتمی (Paper Trading)</div>
                 <div class="text-xl font-bold font-mono text-cyan-400">نرخ برد: ${d.algorithmic_win_rate}%</div>
                 <div class="text-xs text-slate-400 mt-1">${d.evaluated_signals} سیگنال ارزیابی‌شده</div>
                 <div class="text-xs text-slate-400 mt-1 font-mono">دامنه اطمینان ویلسون: [${d.algorithmic_wilson_lower}% - ${d.algorithmic_wilson_upper}%]</div>
               </div>
-              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div class="glass-card-sub p-4 rounded-2xl border border-white/5">
                 <div class="text-indigo-400 font-bold mb-2">📝 ثبت دستی کاربر در Quotex</div>
                 <div class="text-xl font-bold font-mono text-indigo-400">نرخ برد شما: ${d.manual_win_rate}%</div>
                 <div class="text-xs text-slate-400 mt-1">${d.manual_logged_trades} معامله ثبت‌شده (${d.manual_wins} برد، ${d.manual_losses} باخت)</div>
@@ -1198,17 +1414,17 @@
         const res = await fetch('/api/settings');
         const s = await res.json();
         box.innerHTML = `
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg space-y-4 text-xs">
-            <h2 class="text-base font-bold text-white border-b border-slate-800 pb-3">⚙️ تنظیمات استراتژی و اتصال</h2>
+          <div class="glass-panel rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+            <h2 class="text-base font-bold text-white border-b border-white/10 pb-3">⚙️ تنظیمات استراتژی و اتصال</h2>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div><label class="text-slate-400">حالت داده:</label><div class="p-2 bg-slate-950 rounded font-bold text-cyan-400">${s.data_mode}</div></div>
-              <div><label class="text-slate-400">EMA Fast:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.ema_fast_period}</div></div>
-              <div><label class="text-slate-400">EMA Slow:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.ema_slow_period}</div></div>
-              <div><label class="text-slate-400">RSI Period:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.rsi_period}</div></div>
-              <div><label class="text-slate-400">ATR Period:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.atr_period}</div></div>
-              <div><label class="text-slate-400">حدنصاب توافق:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.min_rule_agreement_count} از ۵</div></div>
-              <div><label class="text-slate-400">Payout %:</label><div class="p-2 bg-slate-950 rounded font-mono">${s.default_payout_ratio}</div></div>
-              <div><label class="text-slate-400">کلید Twelve Data:</label><div class="p-2 bg-slate-950 rounded font-mono text-emerald-400">${s.twelve_data_api_key || 'تنظیم نشده (فید بین‌بانکی فعال است)'}</div></div>
+              <div><label class="text-slate-400">حالت داده:</label><div class="p-2.5 glass-card-sub rounded-xl font-bold text-cyan-400">${s.data_mode}</div></div>
+              <div><label class="text-slate-400">EMA Fast:</label><div class="p-2.5 glass-card-sub rounded-xl font-mono">${s.ema_fast_period}</div></div>
+              <div><label class="text-slate-400">EMA Slow:</label><div class="p-2.5 glass-card-sub rounded-xl font-mono">${s.ema_slow_period}</div></div>
+              <div><label class="text-slate-400">RSI Period:</label><div class="p-2.5 glass-card-sub rounded-xl font-mono">${s.rsi_period}</div></div>
+              <div><label class="text-slate-400">ATR Period:</label><div class="p-2.5 glass-card-sub rounded-xl font-mono">${s.atr_period}</div></div>
+              <div><label class="text-slate-400">حدنصاب توافق:</label><div class="p-2.5 glass-card-sub rounded-xl font-mono">${s.min_rule_agreement_count} از ۵</div></div>
+              <div><label class="text-slate-400">Payout %:</label><div class="p-2.5 glass-card-sub rounded-xl font-mono">${s.default_payout_ratio}</div></div>
+              <div><label class="text-slate-400">کلید Twelve Data:</label><div class="p-2.5 glass-card-sub rounded-xl font-mono text-emerald-400">${s.twelve_data_api_key || 'تنظیم نشده (فید بین‌بانکی فعال است)'}</div></div>
             </div>
           </div>
         `;
@@ -1217,21 +1433,26 @@
       }
     }
 
-    // Auto-refresh timer loop
+    // Auto-refresh timer loop (3 seconds for super-fast analysis)
     function startAutoRefreshLoop() {
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-      autoRefreshCount = 10;
+      autoRefreshCount = 3;
       autoRefreshTimer = setInterval(() => {
         autoRefreshCount--;
         const counterEl = document.getElementById('autoRefreshCounter');
         if (counterEl) counterEl.textContent = autoRefreshCount;
 
         if (autoRefreshCount <= 0) {
-          autoRefreshCount = 10;
+          autoRefreshCount = 3;
           analyzeCurrent();
           loadCandles();
         }
       }, 1000);
+
+      // Fast multi-pair scanner loop every 3 seconds
+      if (scannerPollTimer) clearInterval(scannerPollTimer);
+      runFastScanner();
+      scannerPollTimer = setInterval(runFastScanner, 3000);
     }
 
     // Register Service Worker for PWA

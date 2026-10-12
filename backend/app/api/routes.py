@@ -102,6 +102,18 @@ def list_signals(
     return signal_service.get_signals(db, symbol, direction, is_evaluated, limit)
 
 
+@api_router.get("/signals/scanner")
+def get_signals_scanner(db: Session = Depends(get_db)):
+    """
+    Real-time high-speed scanner across all 7 supported currency pairs.
+    Returns active signals, pre-signal alerts, readiness scores, and expiry guidance.
+    """
+    try:
+        return signal_service.scan_all_pairs_fast(db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"خطا در اجرای اسکنر سریع: {str(e)}")
+
+
 @api_router.get("/signals/{signal_id}", response_model=SignalSchema)
 def get_signal_detail(
     signal_id: str,
