@@ -359,10 +359,11 @@ class SignalService:
         Scans all 7 major forex pairs in parallel using in-memory candle cache.
         Returns pre-signal alerts, readiness scores, and instant active setups.
         """
+        from concurrent.futures import ThreadPoolExecutor
         results = []
         data_source = market_data_manager.get_active_provider().source_name
 
-        for symbol in settings.SUPPORTED_SYMBOLS:
+        def _scan_single_symbol(symbol: str) -> Dict[str, Any]:
             try:
                 df_m1, rep_m1 = market_data_manager.get_candles(symbol, "M1", count=80)
                 df_m5, _ = market_data_manager.get_candles(symbol, "M5", count=40)
@@ -388,7 +389,7 @@ class SignalService:
                 else:
                     badge = "MONITORING"
 
-                results.append({
+                return {
                     "symbol": symbol,
                     "direction": direction,
                     "entry_price": analysis["entry_price"],
@@ -404,9 +405,9 @@ class SignalService:
                     "recommended_expiry_description": analysis.get("recommended_expiry_description", "انقضای ۵ دقیقه در کوتکس"),
                     "timing_guide": analysis.get("timing_guide", "ثانیه ۰ تا ۳ شروع کندل"),
                     "updated_at": datetime.datetime.utcnow().isoformat(),
-                })
+                }
             except Exception as e:
-                results.append({
+                return {
                     "symbol": symbol,
                     "direction": "NO TRADE",
                     "entry_price": 0.0,
@@ -422,7 +423,11 @@ class SignalService:
                     "recommended_expiry_description": "نامشخص",
                     "timing_guide": "",
                     "updated_at": datetime.datetime.utcnow().isoformat(),
-                })
+                }
+
+        with ThreadPoolExecutor(max_workers=min(7, len(settings.SUPPORTED_SYMBOLS))) as executor:
+            futures = [executor.submit(_scan_single_symbol, s) for s in settings.SUPPORTED_SYMBOLS]
+            results = [f.result() for f in futures]
 
         # Sort: ACTIVE signals first, then PRE_SIGNAL_READY by readiness_score descending, then others
         def sort_key(item):
