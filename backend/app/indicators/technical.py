@@ -86,6 +86,48 @@ def calculate_atr(
     return atr
 
 
+def calculate_adx(
+    high: pd.Series,
+    low: pd.Series,
+    close: pd.Series,
+    period: int = 14,
+) -> Tuple[pd.Series, pd.Series, pd.Series]:
+    """
+    Calculate Average Directional Index (ADX) and +DI / -DI.
+    ADX < 20: Chop / Range (High risk in binary options!)
+    ADX >= 25: Strong Trending Market
+    """
+    if len(high) < period * 2:
+        nan_s = pd.Series(np.nan, index=high.index)
+        return nan_s, nan_s, nan_s
+
+    prev_high = high.shift(1)
+    prev_low = low.shift(1)
+    prev_close = close.shift(1)
+
+    # Directional Movement
+    up_move = high - prev_high
+    down_move = prev_low - low
+
+    plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
+    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+
+    # True Range
+    tr1 = high - low
+    tr2 = (high - prev_close).abs()
+    tr3 = (low - prev_close).abs()
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+
+    tr_smoothed = tr.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+    plus_di = 100.0 * (pd.Series(plus_dm, index=high.index).ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean() / tr_smoothed)
+    minus_di = 100.0 * (pd.Series(minus_dm, index=high.index).ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean() / tr_smoothed)
+
+    dx = 100.0 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)
+    adx = dx.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean().fillna(20.0)
+
+    return adx, plus_di.fillna(0.0), minus_di.fillna(0.0)
+
+
 def compute_all_indicators(
     df: pd.DataFrame,
     ema_fast: int = 20,
@@ -103,6 +145,7 @@ def compute_all_indicators(
       - rsi
       - macd_line, macd_signal, macd_hist
       - atr
+      - adx, plus_di, minus_di
     """
     res = df.copy()
     close = res["close"]
@@ -119,4 +162,8 @@ def compute_all_indicators(
     res["macd_hist"] = m_hist
 
     res["atr"] = calculate_atr(high, low, close, atr_period)
+    adx_s, plus_di, minus_di = calculate_adx(high, low, close, period=14)
+    res["adx"] = adx_s
+    res["plus_di"] = plus_di
+    res["minus_di"] = minus_di
     return res

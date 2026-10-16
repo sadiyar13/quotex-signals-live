@@ -71,11 +71,14 @@ def evaluate_filter_1_mtf_trend(
         "PUT" if (m15_fast < m15_slow) else "NEUTRAL"
     )
 
+    m5_adx = float(m5_ind["adx"].iloc[-1]) if ("adx" in m5_ind and not pd.isna(m5_ind["adx"].iloc[-1])) else 25.0
+
     values = {
         "m5_ema20": round(m5_fast, 5),
         "m5_ema50": round(m5_slow, 5),
         "m15_ema20": round(m15_fast, 5),
         "m15_ema50": round(m15_slow, 5),
+        "m5_adx": round(m5_adx, 2),
         "m5_direction": m5_trend,
         "m15_direction": m15_trend,
     }
@@ -83,12 +86,12 @@ def evaluate_filter_1_mtf_trend(
     if m5_trend == "CALL" and m15_trend == "CALL":
         return FilterResult(
             1, name, "PASS", "CALL", values,
-            f"همگرایی صعودی قوی: EMA20 بالاتر از EMA50 در تایم‌فریم‌های M5 و M15 قرار دارد."
+            f"همگرایی صعودی قوی: EMA20 بالاتر از EMA50 در M5 و M15 (قدرت روند ADX={values['m5_adx']})."
         )
     elif m5_trend == "PUT" and m15_trend == "PUT":
         return FilterResult(
             1, name, "PASS", "PUT", values,
-            f"همگرایی نزولی قوی: EMA20 پایین‌تر از EMA50 در تایم‌فریم‌های M5 و M15 قرار دارد."
+            f"همگرایی نزولی قوی: EMA20 پایین‌تر از EMA50 در M5 و M15 (قدرت روند ADX={values['m5_adx']})."
         )
     elif m5_trend != m15_trend:
         return FilterResult(
@@ -98,7 +101,7 @@ def evaluate_filter_1_mtf_trend(
     else:
         return FilterResult(
             1, name, "FAIL", "NEUTRAL", values,
-            "بازار رِنج یا بدون جهت‌گیری واضح در تایم‌فریم‌های میان‌مدت و کلان."
+            f"بازار رِنج یا بدون جهت‌گیری واضح در تایم‌فریم‌های میان‌مدت و کلان (ADX={values['m5_adx']})."
         )
 
 
@@ -111,6 +114,7 @@ def evaluate_filter_2_momentum(
     """
     فیلتر دوم: مومنتوم (Momentum Filter)
     ارزیابی RSI 14، شیب حرکت RSI، خط MACD و هیستوگرام در تایم‌فریم ورود (M1).
+    پشتیبانی از مومنتوم روندی و بازگشت از نواحی افراطی (Reversal).
     """
     name = "مومنتوم بازار (RSI & MACD)"
     if len(df_m1) < 35:
@@ -132,41 +136,48 @@ def evaluate_filter_2_momentum(
         "macd_hist": round(macd_hist, 6),
     }
 
-    # Bullish Momentum: RSI > 50 and rising, not overbought, MACD line > Signal, Histogram positive or expanding
-    is_bullish = (
-        curr_rsi > 50.0
+    # Bullish Trend Momentum
+    is_bullish_trend = (
+        curr_rsi >= 47.0
         and curr_rsi < rsi_ob
-        and curr_rsi >= prev_rsi
-        and macd_line > macd_signal
-        and macd_hist >= prev_macd_hist
+        and (curr_rsi >= prev_rsi or macd_line > macd_signal or macd_hist >= prev_macd_hist)
     )
+    # Bullish Reversal from Oversold (Sniper bounce)
+    is_bullish_reversal = (
+        curr_rsi <= 42.0
+        and (curr_rsi > prev_rsi or macd_hist > prev_macd_hist)
+    )
+    is_bullish = is_bullish_trend or is_bullish_reversal
 
-    # Bearish Momentum: RSI < 50 and falling, not oversold, MACD line < Signal, Histogram negative or expanding downwards
-    is_bearish = (
-        curr_rsi < 50.0
+    # Bearish Trend Momentum
+    is_bearish_trend = (
+        curr_rsi <= 53.0
         and curr_rsi > rsi_os
-        and curr_rsi <= prev_rsi
-        and macd_line < macd_signal
-        and macd_hist <= prev_macd_hist
+        and (curr_rsi <= prev_rsi or macd_line < macd_signal or macd_hist <= prev_macd_hist)
     )
+    # Bearish Reversal from Overbought (Sniper rejection)
+    is_bearish_reversal = (
+        curr_rsi >= 58.0
+        and (curr_rsi < prev_rsi or macd_hist < prev_macd_hist)
+    )
+    is_bearish = is_bearish_trend or is_bearish_reversal
 
     if is_bullish:
         return FilterResult(
             2, name, "PASS", "CALL", values,
-            f"مومنتوم صعودی تأیید شد (RSI={values['rsi']} افزایشی و MACD بالای سیگنال با هیستوگرام مثبت)."
+            f"مومنتوم صعودی تأیید شد (RSI={values['rsi']} و هیستوگرام/سیگنال هم‌راستا)."
         )
     elif is_bearish:
         return FilterResult(
             2, name, "PASS", "PUT", values,
-            f"مومنتوم نزولی تأیید شد (RSI={values['rsi']} کاهشی و MACD زیر سیگنال با هیستوگرام منفی)."
+            f"مومنتوم نزولی تأیید شد (RSI={values['rsi']} و هیستوگرام/سیگنال هم‌راستا)."
         )
     else:
-        # Check if overbought or oversold
         reason = "مومنتوم ضعیف یا تعارض میان جهت RSI و خطوط MACD."
         if curr_rsi >= rsi_ob:
-            reason = f"هشدار اشباع خرید (RSI={values['rsi']}); ورود به معامله CALL پرخطر است."
+            reason = f"هشدار اشباع خرید شدید (RSI={values['rsi']}); ورود به معامله CALL پرخطر است."
         elif curr_rsi <= rsi_os:
-            reason = f"هشدار اشباع فروش (RSI={values['rsi']}); ورود به معامله PUT پرخطر است."
+            reason = f"هشدار اشباع فروش شدید (RSI={values['rsi']}); ورود به معامله PUT پرخطر است."
 
         return FilterResult(2, name, "FAIL", "NEUTRAL", values, reason)
 

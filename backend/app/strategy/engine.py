@@ -170,14 +170,14 @@ class StrategyEngine:
         core_filters = [f1, f2, f3, f4, f5]
         all_filters = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11]
 
-        # Count agreements for CALL and PUT across the 5 primary filters
+        # Strict agreement counting (NEVER count NEUTRAL as a directional vote)
         call_agreements = sum(
             1 for f in core_filters
-            if f.status == "PASS" and (f.detected_direction in ["CALL", "NEUTRAL"])
+            if f.status == "PASS" and f.detected_direction == "CALL"
         )
         put_agreements = sum(
             1 for f in core_filters
-            if f.status == "PASS" and (f.detected_direction in ["PUT", "NEUTRAL"])
+            if f.status == "PASS" and f.detected_direction == "PUT"
         )
 
         # Bonus agreement points from Divergence, Bollinger, CSM, SMC, and Oscillators
@@ -208,8 +208,33 @@ class StrategyEngine:
         elif f11.status == "PASS" and f11.detected_direction == "PUT":
             put_agreements += 1
 
+        # Session liquidity quality (+1 point bonus if high liquidity)
+        if f9.status == "PASS":
+            if call_agreements > put_agreements:
+                call_agreements += 1
+            elif put_agreements > call_agreements:
+                put_agreements += 1
+
+        # Strict Candlestick and Price Action Gate for Binary Options
+        last_c = df_m1.iloc[-1]
+        c_open = float(last_c["open"])
+        c_high = float(last_c["high"])
+        c_low = float(last_c["low"])
+        c_close = float(last_c["close"])
+        c_range = max(1e-6, c_high - c_low)
+        lower_wick = min(c_open, c_close) - c_low
+        upper_wick = c_high - max(c_open, c_close)
+        body = abs(c_close - c_open)
+
+        # For CALL: Candle must not be a heavy dumping red marubozu (falling knife)
+        is_bearish_dump = (c_close < c_open) and (body > 0.65 * c_range) and (lower_wick < 0.25 * c_range)
+        call_candle_ok = (c_close >= c_open or (lower_wick >= 0.35 * c_range)) and not is_bearish_dump
+
+        # For PUT: Candle must not be a heavy pumping green marubozu
+        is_bullish_pump = (c_close > c_open) and (body > 0.65 * c_range) and (upper_wick < 0.25 * c_range)
+        put_candle_ok = (c_close <= c_open or (upper_wick >= 0.35 * c_range)) and not is_bullish_pump
+
         # Mandatory Filter Checks:
-        trend_passed = (f1.status == "PASS")
         quality_passed = (f3.status == "PASS") and (data_quality_status in ["VALID", "MARKET_CLOSED_WEEKEND"])
 
         direction = "NO TRADE"
@@ -218,51 +243,66 @@ class StrategyEngine:
 
         if not quality_passed:
             direction = "NO TRADE"
-            reason_parts.append(f"رد سیگنال به علت کیفیت داده یا نوسان نامساعد: {f3.explanation}")
-        elif not trend_passed:
-            direction = "NO TRADE"
-            reason_parts.append(f"رد سیگنال به علت عدم تأیید روند کلان: {f1.explanation}")
+            reason_parts.append(f"رد سیگنال به علت نوسان نامساعد یا کیفیت داده: {f3.explanation}")
         else:
-            # Check CALL qualification
-            if f1.detected_direction == "CALL" and call_agreements >= self.min_agreement_count:
-                if f4.status == "PASS" and f2.status == "PASS":
-                    direction = "CALL"
-                    rule_score = round(min(100.0, (call_agreements / 6.0) * 100.0), 1)
-                    reason_parts.append("سیگنال صعودی (CALL) با تایید روند، مومنتوم و توافق قوی فیلترها تایید شد.")
-                    if f10.status == "PASS" and f10.detected_direction == "CALL":
-                        reason_parts.append("★ تاییدیه پرقدرت پول هوشمند (SMC/FVG) وین‌ریت را به حداکثر رساند.")
-                    if f11.status == "PASS" and f11.detected_direction == "CALL":
-                        reason_parts.append("★ همگرایی استوکاستیک و CCI در کف قیمت تایید شد.")
-                    if f6.status == "PASS" and f6.detected_direction == "CALL":
-                        reason_parts.append("★ واگرایی مثبت مومنتوم اعتبار سیگنال را افزایش داد.")
-                    if f8.status == "PASS" and f8.detected_direction == "CALL":
-                        reason_parts.append("★ موازنه قدرت ارزها (CSM) سیگنال خرید را حمایت می‌کند.")
-                else:
-                    direction = "NO TRADE"
-                    reason_parts.append("تعارض در فیلتر مجاورت سطوح یا مومنتوم مانع ورود به معامله CALL شد.")
+            # Dual-Setup Qualification (Setup A: Level Reversal or Setup B: MTF Trend Continuation)
+            is_call_trend_setup = (f1.status == "PASS" and f1.detected_direction == "CALL" and f2.status == "PASS" and f2.detected_direction == "CALL")
+            is_call_reversal_setup = (
+                (f4.detected_direction == "CALL" or f7.detected_direction == "CALL" or f6.detected_direction == "CALL" or f10.detected_direction == "CALL")
+                and (f11.status == "PASS" and f11.detected_direction == "CALL")
+            )
 
-            # Check PUT qualification
-            elif f1.detected_direction == "PUT" and put_agreements >= self.min_agreement_count:
-                if f4.status == "PASS" and f2.status == "PASS":
-                    direction = "PUT"
-                    rule_score = round(min(100.0, (put_agreements / 6.0) * 100.0), 1)
-                    reason_parts.append("سیگنال نزولی (PUT) با تایید روند، مومنتوم و توافق قوی فیلترها تایید شد.")
-                    if f10.status == "PASS" and f10.detected_direction == "PUT":
-                        reason_parts.append("★ تاییدیه پرقدرت پول هوشمند (SMC/FVG) وین‌ریت را به حداکثر رساند.")
-                    if f11.status == "PASS" and f11.detected_direction == "PUT":
-                        reason_parts.append("★ همگرایی استوکاستیک و CCI در سقف قیمت تایید شد.")
-                    if f6.status == "PASS" and f6.detected_direction == "PUT":
-                        reason_parts.append("★ واگرایی منفی مومنتوم اعتبار سیگنال را افزایش داد.")
-                    if f8.status == "PASS" and f8.detected_direction == "PUT":
-                        reason_parts.append("★ موازنه قدرت ارزها (CSM) سیگنال فروش را حمایت می‌کند.")
-                else:
+            is_put_trend_setup = (f1.status == "PASS" and f1.detected_direction == "PUT" and f2.status == "PASS" and f2.detected_direction == "PUT")
+            is_put_reversal_setup = (
+                (f4.detected_direction == "PUT" or f7.detected_direction == "PUT" or f6.detected_direction == "PUT" or f10.detected_direction == "PUT")
+                and (f11.status == "PASS" and f11.detected_direction == "PUT")
+            )
+
+            # Check CALL execution:
+            if call_agreements >= self.min_agreement_count and (is_call_trend_setup or is_call_reversal_setup):
+                if not call_candle_ok:
                     direction = "NO TRADE"
-                    reason_parts.append("تعارض در فیلتر مجاورت سطوح یا مومنتوم مانع ورود به معامله PUT شد.")
+                    reason_parts.append("مردود به دلیل کندل ریزشی تند بدون سایه بازگشتی (ورود روی چاقوی در حال سقوط ممنوع است).")
+                elif f4.status == "FAIL":
+                    direction = "NO TRADE"
+                    reason_parts.append(f"مردود به دلیل برخورد به مقاومت سرسخت نزدیک ({f4.indicator_values.get('dist_to_res_pips', 0)} پیپ).")
+                else:
+                    direction = "CALL"
+                    rule_score = round(min(98.0, 68.0 + (call_agreements * 4.5)), 1)
+                    if is_call_trend_setup:
+                        reason_parts.append("★ ستاپ اسنایپر پولبک روندی: تایید روند صعودی M5/M15، مومنتوم و توافق قوی فیلترها.")
+                    else:
+                        reason_parts.append("★ ستاپ اسنایپر بازگشت از سطح کلیدی: ریجکت کف، اشباع اسیلاتورها و پرایس‌اکشن تایید شد.")
+                    if f10.status == "PASS" and f10.detected_direction == "CALL":
+                        reason_parts.append("تاییدیه پول هوشمند (SMC/OrderBlock)")
+                    if f11.status == "PASS" and f11.detected_direction == "CALL":
+                        reason_parts.append("تایید همگرایی اسیلاتورها در کف (Stoch/CCI)")
+
+            # Check PUT execution:
+            elif put_agreements >= self.min_agreement_count and (is_put_trend_setup or is_put_reversal_setup):
+                if not put_candle_ok:
+                    direction = "NO TRADE"
+                    reason_parts.append("مردود به دلیل کندل جهشی تند بدون سایه بازگشتی (فروش روی شتاب صعودی ممنوع است).")
+                elif f4.status == "FAIL":
+                    direction = "NO TRADE"
+                    reason_parts.append(f"مردود به دلیل برخورد به حمایت سرسخت نزدیک ({f4.indicator_values.get('dist_to_sup_pips', 0)} پیپ).")
+                else:
+                    direction = "PUT"
+                    rule_score = round(min(98.0, 68.0 + (put_agreements * 4.5)), 1)
+                    if is_put_trend_setup:
+                        reason_parts.append("★ ستاپ اسنایپر پولبک روندی: تایید روند نزولی M5/M15، مومنتوم و توافق قوی فیلترها.")
+                    else:
+                        reason_parts.append("★ ستاپ اسنایپر بازگشت از سطح کلیدی: ریجکت سقف، اشباع اسیلاتورها و پرایس‌اکشن تایید شد.")
+                    if f10.status == "PASS" and f10.detected_direction == "PUT":
+                        reason_parts.append("تاییدیه پول هوشمند (SMC/OrderBlock)")
+                    if f11.status == "PASS" and f11.detected_direction == "PUT":
+                        reason_parts.append("تایید همگرایی اسیلاتورها در سقف (Stoch/CCI)")
+
             else:
                 direction = "NO TRADE"
                 max_agree = max(call_agreements, put_agreements)
-                rule_score = round(min(100.0, (max_agree / 6.0) * 100.0), 1)
-                reason_parts.append("تعداد فیلترهای همسو به حدنصاب الزامی ورود نرسید.")
+                rule_score = round(min(65.0, max_agree * 11.0), 1)
+                reason_parts.append(f"عدم احراز شرایط ستاپ اسنایپر (توافق فیلترها: {max_agree}/{self.min_agreement_count}). برای حفظ سرمایه سیگنالی صادر نشد.")
 
         # --- PRE-SIGNAL READINESS DETECTION ---
         # Trigger alert before full signal when 70-85% ready
@@ -275,23 +315,22 @@ class StrategyEngine:
             is_pre_signal = False
             pre_signal_direction = direction
             readiness_score = 100.0
-            pre_signal_msg = f"سیگنال قطعی ورود {direction}! آماده اجرای سفارش در ثانیه ۰ ابتدای کندل باشید."
+            pre_signal_msg = f"سیگنال قطعی ورود {direction}! آماده اجرای سفارش در ثانیه ۰ ابتدای کندل ۵ دقیقه‌ای باشید."
         else:
-            # Check if close to CALL setup
-            if (f1.detected_direction == "CALL" and call_agreements >= 3) or (f10.status == "PASS" and f10.detected_direction == "CALL") or (f11.status == "PASS" and f11.detected_direction == "CALL"):
+            # Check if close to CALL setup (3 agreements or SMC/Oscillator trigger developing)
+            if (call_agreements >= 3) or (f1.detected_direction == "CALL" and (f10.detected_direction == "CALL" or f11.detected_direction == "CALL")):
                 is_pre_signal = True
                 pre_signal_direction = "CALL"
-                readiness_score = min(92.0, max(70.0, float(call_agreements * 15.0)))
-                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ صعودی (CALL) در آستانه تایید است! در ثانیه ۰ کندل بعدی آماده ثبت معامله باشید."
-            # Check if close to PUT setup
-            elif (f1.detected_direction == "PUT" and put_agreements >= 3) or (f10.status == "PASS" and f10.detected_direction == "PUT") or (f11.status == "PASS" and f11.detected_direction == "PUT"):
+                readiness_score = min(92.0, max(72.0, float(call_agreements * 18.0)))
+                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ صعودی (CALL) در حال شکل‌گیری است! در ثانیه ۰ کندل بعدی آماده ثبت معامله ۵ دقیقه‌ای در کوتکس باشید."
+            elif (put_agreements >= 3) or (f1.detected_direction == "PUT" and (f10.detected_direction == "PUT" or f11.detected_direction == "PUT")):
                 is_pre_signal = True
                 pre_signal_direction = "PUT"
-                readiness_score = min(92.0, max(70.0, float(put_agreements * 15.0)))
-                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ نزولی (PUT) در آستانه تایید است! در ثانیه ۰ کندل بعدی آماده ثبت معامله باشید."
+                readiness_score = min(92.0, max(72.0, float(put_agreements * 18.0)))
+                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ نزولی (PUT) در حال شکل‌گیری است! در ثانیه ۰ کندل بعدی آماده ثبت معامله ۵ دقیقه‌ای در کوتکس باشید."
             else:
                 readiness_score = round(min(50.0, max(call_agreements, put_agreements) * 10.0), 1)
-                pre_signal_msg = "بازار در فاز ارزیابی و استراحت؛ هنوز ستاپی نزدیک به ورود نیست."
+                pre_signal_msg = "بازار در حالت نوسان عادی؛ ستاپ اسنایپری فعالی وجود ندارد."
 
         decision_reason = " | ".join(reason_parts)
 
@@ -303,7 +342,7 @@ class StrategyEngine:
             "entry_price": entry_price,
             "expiry_time": expiry_ts,
             "data_source": data_source,
-            "timeframe": "M1",
+            "timeframe": "M5",
             "rule_agreement_score": rule_score,
             "strategy_version": self.strategy_version,
             "data_quality_status": data_quality_status,
@@ -314,11 +353,11 @@ class StrategyEngine:
             "pre_signal_direction": pre_signal_direction,
             "readiness_score": readiness_score,
             "pre_signal_message": pre_signal_msg,
-            "recommended_timeframe": "M1 / M5",
-            "recommended_expiry_minutes": self.horizon_minutes,
-            "recommended_expiry_description": f"انقضای {self.horizon_minutes} دقیقه در کوتکس (پایان کندل M5)",
-            "timing_guide": "در ثانیه ۰ تا ۳ شروع کندل جدید کلیک کنید.",
-            "micro_timing_tip": "بهترین زمان ثبت دستی سفارش در Quotex: در ثانیه ۰ تا ۵ ابتدای کندل جدید ۵ دقیقه‌ای.",
+            "recommended_timeframe": "M5 (تایم تحلیل و ورود)",
+            "recommended_expiry_minutes": 5,
+            "recommended_expiry_description": "انقضای ۵ دقیقه دقیقاً همگام با پایان کندل M5",
+            "timing_guide": "در ثانیه ۰۰ تا ۰۳ شروع کندل جدید ۵ دقیقه‌ای در کوتکس وارد شوید.",
+            "micro_timing_tip": "قانون بقای سرمایه: حداکثر ۱ تا ۲ درصد موجودی در هر معامله | بدون مارتینگل | توقف معامله پس از ۳ باخت متوالی.",
             "filters": [f.to_dict() for f in all_filters],
         }
 

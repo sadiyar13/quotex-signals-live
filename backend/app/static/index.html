@@ -208,28 +208,61 @@
     <!-- 1. DASHBOARD TAB -->
     <div id="tabDashboard" class="space-y-6">
 
-      <!-- QUOTEX TRADING EXECUTION GUIDE BANNER -->
-      <div id="executionGuideBanner" class="glass-panel rounded-2xl p-4 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-cyan-950/30 via-slate-900/50 to-blue-950/30 shadow-lg">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-xl">
-            🎯
+      <!-- QUOTEX TRADING EXECUTION & CAPITAL PRESERVATION BANNER -->
+      <div id="executionGuideBanner" class="glass-panel rounded-2xl p-4 border border-cyan-500/40 bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-indigo-950/40 shadow-xl space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-xl shadow-lg shadow-cyan-500/20">
+              🎯
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-cyan-300 flex items-center gap-2">
+                تنظیمات اسنایپری اجرای سیگنال در پلتفرم Quotex (وین‌ریت بالا)
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">Sniper Dual-Setup</span>
+              </h3>
+              <p class="text-xs text-slate-300 mt-0.5">
+                برای دستیابی به بالاترین وین‌ریت، تنظیمات زمان‌بندی و مدیریت سرمایه زیر را مو به مو رعایت کنید:
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 class="text-sm font-black text-cyan-300">راهنمای صریح ورود دستی در پلتفرم Quotex</h3>
-            <p class="text-xs text-slate-300 mt-0.5">
-              برای حداکثر نرخ برد (Win Rate بالا)، تنظیمات زیر را در حساب کوتکس خود لحاظ نمایید:
-            </p>
+
+          <div class="flex items-center gap-2 flex-wrap text-xs">
+            <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-cyan-400/30 text-slate-200">
+              <span>⏱️ تایم‌فریم چارت کوتکس:</span> <strong class="text-cyan-300 font-mono font-bold">M5 (کندل ۵ دقیقه‌ای)</strong>
+            </div>
+            <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-amber-400/30 text-slate-200">
+              <span>⏳ زمان انقضا (Expiration):</span> <strong class="text-amber-300 font-mono font-bold">۵ دقیقه (انتهای کندل M5)</strong>
+            </div>
+            <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-emerald-400/30 text-slate-200">
+              <span>⚡ لحظه ورود طلایی:</span> <strong class="text-emerald-300 font-mono font-bold">ثانیه ۰۰ تا ۰۳ شروع کندل</strong>
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-3 flex-wrap text-xs">
-          <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-cyan-400/20 text-slate-200">
-            <span>⏱️ تایم‌فریم چارت کوتکس:</span> <strong class="text-cyan-300 font-mono">M1 یا M5</strong>
+
+        <!-- CAPITAL MANAGEMENT & ANTI-BLOWOUT RULES -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px] pt-1">
+          <div class="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-200 flex items-start gap-2">
+            <span class="text-base">🛡️</span>
+            <div>
+              <strong class="text-emerald-300 block font-bold">ریسک حداکثر ۱٪ تا ۲٪ در هر معامله:</strong>
+              <span>هرگز بیش از ۲٪ از کل بالانس حساب خود را وارد یک معامله نکنید تا در تلاطم بازار سرمایه شما محفوظ بماند.</span>
+            </div>
           </div>
-          <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-amber-400/20 text-slate-200">
-            <span>⏳ زمان انقضا (Expiration):</span> <strong class="text-amber-300 font-mono">۵ دقیقه (انتهای کندل M5)</strong>
+
+          <div class="p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 text-rose-200 flex items-start gap-2">
+            <span class="text-base">⛔</span>
+            <div>
+              <strong class="text-rose-300 block font-bold">ممنوعیت قطعی مارتینگل (Martingale):</strong>
+              <span>دوبرابر کردن مبلغ بعد از ضرر، عامل نابودی و صفر شدن حساب است. تمام معاملات با مبلغ ثابت ۱ الی ۲ درصد انجام شود.</span>
+            </div>
           </div>
-          <div class="px-3 py-1.5 rounded-xl glass-card-sub border border-emerald-400/20 text-slate-200">
-            <span>⚡ لحظه ورود طلایی:</span> <strong class="text-emerald-300 font-mono">ثانیه ۰ تا ۳ شروع کندل</strong>
+
+          <div class="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/30 text-amber-200 flex items-start gap-2">
+            <span class="text-base">🛑</span>
+            <div>
+              <strong class="text-amber-300 block font-bold">قانون توقف باخت ۳ پیاپی (Stop Loss):</strong>
+              <span>در صورت رخ دادن ۳ ضرر متوالی در یک روز، فوراً معامله را برای آن روز متوقف کنید تا از ترید احساسی پیشگیری شود.</span>
+            </div>
           </div>
         </div>
       </div>

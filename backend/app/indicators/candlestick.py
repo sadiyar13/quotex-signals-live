@@ -93,22 +93,55 @@ def analyze_candlestick_patterns(df: pd.DataFrame) -> Dict[str, Any]:
                 "description": "الگوی پین‌بار نزولی (سایه بالایی بلند بیش از ۲ برابر بدنه با ریجکت سقف)",
             }
 
-    # 5. Strong Momentum Candle
+    # 5. Strong Price Action Rejection Wick (Shadow >= 40% of candle range)
+    if (curr_lower_shadow / curr_range >= 0.40) and (curr_c >= (curr_l + 0.40 * curr_range)):
+        return {
+            "pattern": "BULLISH_REJECTION_WICK",
+            "direction": "CALL",
+            "strength": 0.82,
+            "description": "ریجکت قدرتمند کف قیمت با سایه پایینی کشیده (بیش از ۴۰٪ دامنه کندل)",
+        }
+    if (curr_upper_shadow / curr_range >= 0.40) and (curr_c <= (curr_h - 0.40 * curr_range)):
+        return {
+            "pattern": "BEARISH_REJECTION_WICK",
+            "direction": "PUT",
+            "strength": 0.82,
+            "description": "ریجکت قدرتمند سقف قیمت با سایه بالایی کشیده (بیش از ۴۰٪ دامنه کندل)",
+        }
+
+    # 6. Strong Momentum Candle
     body_ratio = curr_body / curr_range
-    if body_ratio >= 0.70:
+    if body_ratio >= 0.65:
         if is_curr_bullish:
             return {
                 "pattern": "BULLISH_MARUBOZU",
                 "direction": "CALL",
-                "strength": 0.75,
-                "description": "کندل پرقدرت صعودی ممنتومی با بدنه بزرگ بیش از ۷۰ درصد دامنه",
+                "strength": 0.80,
+                "description": "کندل پرقدرت صعودی ممنتومی با بدنه بزرگ بیش از ۶۵ درصد دامنه",
             }
         elif is_curr_bearish:
             return {
                 "pattern": "BEARISH_MARUBOZU",
                 "direction": "PUT",
-                "strength": 0.75,
-                "description": "کندل پرقدرت نزولی ممنتومی با بدنه بزرگ بیش از ۷۰ درصد دامنه",
+                "strength": 0.80,
+                "description": "کندل پرقدرت نزولی ممنتومی با بدنه بزرگ بیش از ۶۵ درصد دامنه",
+            }
+
+    # 7. Healthy Trend Continuation Candle
+    if body_ratio >= 0.45:
+        if is_curr_bullish and curr_upper_shadow <= 0.35 * curr_range:
+            return {
+                "pattern": "BULLISH_CONTINUATION",
+                "direction": "CALL",
+                "strength": 0.72,
+                "description": "کندل صعودی در راستای روند بدون فشار فروش در سقف",
+            }
+        elif is_curr_bearish and curr_lower_shadow <= 0.35 * curr_range:
+            return {
+                "pattern": "BEARISH_CONTINUATION",
+                "direction": "PUT",
+                "strength": 0.72,
+                "description": "کندل نزولی در راستای روند بدون فشار خرید در کف",
             }
 
     # Default: Neutral
