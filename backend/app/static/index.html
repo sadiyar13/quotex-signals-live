@@ -142,6 +142,11 @@
           <span id="audioText">هشدار صوتی: غیرفعال</span>
         </button>
 
+        <!-- Quotex Demo Auto-Trader Button -->
+        <button onclick="openDemoBotModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/50 hover:to-blue-600/50 border border-cyan-500/40 text-cyan-300 transition flex items-center gap-1.5 font-bold shadow-md shadow-cyan-500/20" title="اتوتریدر دموی کوتکس">
+          <span>🤖</span> اتوتریدر دموی Quotex
+        </button>
+
         <!-- Android App Info Button -->
         <button onclick="openAndroidModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600/30 to-teal-600/30 hover:from-emerald-600/50 hover:to-teal-600/50 border border-emerald-500/40 text-emerald-300 transition flex items-center gap-1.5 font-bold" title="راهنمای نسخه اندروید">
           <span>📱</span> دانلود APK
@@ -473,6 +478,71 @@
     </div>
   </main>
 
+  <!-- QUOTEX DEMO AUTO-TRADER MODAL -->
+  <div id="demoBotModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="glass-panel rounded-3xl w-full max-w-xl p-6 shadow-2xl relative text-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-xl shadow-lg shadow-cyan-500/20">
+            🤖
+          </div>
+          <div>
+            <h3 class="font-black text-base text-white">ربات اتوتریدر دموی Quotex (معامله کاملاً خودکار)</h3>
+            <p class="text-xs text-slate-400">بدون ریسک پول واقعی | ثبت سفارش خودکار در ثانیه ۰۰ | قفل ۱۰۰٪ روند</p>
+          </div>
+        </div>
+        <button onclick="closeDemoBotModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4 my-4 text-xs leading-relaxed">
+        
+        <!-- Method 1: Desktop 1-Click Launch -->
+        <div class="glass-card-sub p-4 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/20 to-blue-950/20">
+          <h4 class="font-bold text-cyan-300 text-sm mb-1.5 flex items-center gap-1.5">
+            <span>🚀</span> روش اول: اجرای ۱ کلیکه با گوگل کروم (پیشنهادی)
+          </h4>
+          <p class="text-slate-300 mb-2">
+            فایل میانبر <strong class="text-cyan-300">«اتوتریدر_دموی_کوتکس.bat»</strong> روی دسکتاپ ویندوز شما ساخته شده است. کافیست روی آن ۲ بار کلیک کنید تا گوگل کروم با افزونه اتوتریدر و سایت کوتکس باز شود.
+          </p>
+          <div class="p-2 rounded-xl bg-black/40 border border-white/5 font-mono text-[11px] text-slate-400">
+            مسیر فایل دسکتاپ: C:\Users\PINAR\Desktop\اتوتریدر_دموی_کوتکس.bat
+          </div>
+        </div>
+
+        <!-- Method 2: 1-Line Console Script -->
+        <div class="glass-card-sub p-4 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/20 to-teal-950/20">
+          <h4 class="font-bold text-emerald-300 text-sm mb-1.5 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><span>⚡</span> روش دوم: تزریق فوری به مرورگر باز (در ۳ ثانیه)</span>
+            <button onclick="copyHudCode()" id="btnCopyHud" class="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition shadow">
+              📋 کپی کد اسکریپت
+            </button>
+          </h4>
+          <p class="text-slate-300 mb-2">
+            در همان صفحه‌ای که Quotex در مرورگرتان باز است، کلید <strong>F12</strong> کیبورد را بزنید، تب <strong>Console</strong> را انتخاب کرده و کد زیر را Paste کرده و اینتر بزنید تا پنل شیشه‌ای اتوتریدر فوراً روی چارت کوتکس ظاهر شود:
+          </p>
+          <div class="p-2.5 rounded-xl bg-black/50 border border-white/10 font-mono text-[11px] text-cyan-300 overflow-x-auto select-all" id="hudCodeBox">
+fetch("http://127.0.0.1:8000/static/quotex_hud.js").then(r=>r.text()).then(eval);
+          </div>
+        </div>
+
+        <!-- Safety Features -->
+        <div class="glass-card-sub p-3.5 rounded-2xl border border-white/10 text-[11px] space-y-1.5 text-slate-300">
+          <div class="font-bold text-white text-xs mb-1">🛡️ مکانیزم‌های محافظت و ایمنی هوشمند ربات:</div>
+          <div>✅ <strong>قفل حساب دمو:</strong> ربات فقط روی حساب مجازی دمو ترید می‌کند و در حساب واقعی غیرفعال می‌شود.</div>
+          <div>✅ <strong>قفل ۱۰۰٪ روند:</strong> هرگز خلاف روند کلان M5 و M15 معامله نمی‌کند.</div>
+          <div>✅ <strong>توقف اضطراری باخت (Stop Loss):</strong> در صورت بروز ۳ باخت متوالی، اتوتریدر خودکار متوقف می‌شود.</div>
+          <div>✅ <strong>ثبت در ثانیه ۰۰:۰۰:</strong> کلیک دقیق در ابتدای کندل ۵ دقیقه‌ای برای پیشگیری از اسلیپیج و لغزش نرخ.</div>
+        </div>
+
+      </div>
+
+      <div class="flex justify-between items-center pt-3 border-t border-white/10">
+        <span class="text-xs text-slate-400">نسخه ۱.۰.۰ اتوتریدر دمو</span>
+        <button onclick="closeDemoBotModal()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs">متوجه شدم</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ANDROID APP MODAL -->
   <div id="androidModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
     <div class="glass-panel rounded-3xl w-full max-w-lg p-6 shadow-2xl relative text-slate-200">
@@ -725,6 +795,26 @@
 
     function closeAndroidModal() {
       document.getElementById('androidModal').classList.add('hidden');
+    }
+
+    function openDemoBotModal() {
+      document.getElementById('demoBotModal').classList.remove('hidden');
+    }
+
+    function closeDemoBotModal() {
+      document.getElementById('demoBotModal').classList.add('hidden');
+    }
+
+    function copyHudCode() {
+      const code = 'fetch("http://127.0.0.1:8000/static/quotex_hud.js").then(r=>r.text()).then(eval);';
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('btnCopyHud');
+        if (btn) {
+          const old = btn.innerText;
+          btn.innerText = '✅ کپی شد!';
+          setTimeout(() => { btn.innerText = old; }, 2500);
+        }
+      });
     }
 
     // PWA Install handlers
