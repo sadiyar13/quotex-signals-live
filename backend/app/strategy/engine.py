@@ -235,6 +235,7 @@ class StrategyEngine:
         put_candle_ok = (c_close <= c_open or (upper_wick >= 0.35 * c_range)) and not is_bullish_pump
 
         # Mandatory Filter Checks:
+        trend_passed = (f1.status == "PASS") and (f1.detected_direction in ["CALL", "PUT"])
         quality_passed = (f3.status == "PASS") and (data_quality_status in ["VALID", "MARKET_CLOSED_WEEKEND"])
 
         direction = "NO TRADE"
@@ -244,22 +245,34 @@ class StrategyEngine:
         if not quality_passed:
             direction = "NO TRADE"
             reason_parts.append(f"رد سیگنال به علت نوسان نامساعد یا کیفیت داده: {f3.explanation}")
+        elif not trend_passed:
+            direction = "NO TRADE"
+            reason_parts.append(f"رد سیگنال به علت عدم تأیید روند کلان M5/M15: {f1.explanation}")
         else:
-            # Dual-Setup Qualification (Setup A: Level Reversal or Setup B: MTF Trend Continuation)
-            is_call_trend_setup = (f1.status == "PASS" and f1.detected_direction == "CALL" and f2.status == "PASS" and f2.detected_direction == "CALL")
-            is_call_reversal_setup = (
+            # STRICT TREND LOCK:
+            # A CALL is ONLY allowed if the macro trend is strictly CALL (Bullish)
+            # A PUT is ONLY allowed if the macro trend is strictly PUT (Bearish)
+            # Counter-trend trading is 100% BANNED.
+            is_macro_call = (f1.detected_direction == "CALL")
+            is_macro_put = (f1.detected_direction == "PUT")
+
+            # Setups inside the established macro trend:
+            # 1. Trend Momentum Continuation
+            is_call_trend_setup = is_macro_call and (f2.status == "PASS" and f2.detected_direction == "CALL")
+            # 2. Pullback Reversal in Trend direction (e.g. bounce off Support/EMA/Lower BB)
+            is_call_pullback_setup = is_macro_call and (
                 (f4.detected_direction == "CALL" or f7.detected_direction == "CALL" or f6.detected_direction == "CALL" or f10.detected_direction == "CALL")
                 and (f11.status == "PASS" and f11.detected_direction == "CALL")
             )
 
-            is_put_trend_setup = (f1.status == "PASS" and f1.detected_direction == "PUT" and f2.status == "PASS" and f2.detected_direction == "PUT")
-            is_put_reversal_setup = (
+            is_put_trend_setup = is_macro_put and (f2.status == "PASS" and f2.detected_direction == "PUT")
+            is_put_pullback_setup = is_macro_put and (
                 (f4.detected_direction == "PUT" or f7.detected_direction == "PUT" or f6.detected_direction == "PUT" or f10.detected_direction == "PUT")
                 and (f11.status == "PASS" and f11.detected_direction == "PUT")
             )
 
-            # Check CALL execution:
-            if call_agreements >= self.min_agreement_count and (is_call_trend_setup or is_call_reversal_setup):
+            # Check CALL execution (STRICTLY when macro trend is CALL):
+            if is_macro_call and call_agreements >= self.min_agreement_count and (is_call_trend_setup or is_call_pullback_setup):
                 if not call_candle_ok:
                     direction = "NO TRADE"
                     reason_parts.append("مردود به دلیل کندل ریزشی تند بدون سایه بازگشتی (ورود روی چاقوی در حال سقوط ممنوع است).")
@@ -269,17 +282,14 @@ class StrategyEngine:
                 else:
                     direction = "CALL"
                     rule_score = round(min(98.0, 68.0 + (call_agreements * 4.5)), 1)
-                    if is_call_trend_setup:
-                        reason_parts.append("★ ستاپ اسنایپر پولبک روندی: تایید روند صعودی M5/M15، مومنتوم و توافق قوی فیلترها.")
-                    else:
-                        reason_parts.append("★ ستاپ اسنایپر بازگشت از سطح کلیدی: ریجکت کف، اشباع اسیلاتورها و پرایس‌اکشن تایید شد.")
+                    reason_parts.append("★ سیگنال خرید در جهت روند صعودی کلان (M5/M15): تایید EMA، مومنتوم و توافق قوی فیلترها.")
                     if f10.status == "PASS" and f10.detected_direction == "CALL":
                         reason_parts.append("تاییدیه پول هوشمند (SMC/OrderBlock)")
                     if f11.status == "PASS" and f11.detected_direction == "CALL":
                         reason_parts.append("تایید همگرایی اسیلاتورها در کف (Stoch/CCI)")
 
-            # Check PUT execution:
-            elif put_agreements >= self.min_agreement_count and (is_put_trend_setup or is_put_reversal_setup):
+            # Check PUT execution (STRICTLY when macro trend is PUT):
+            elif is_macro_put and put_agreements >= self.min_agreement_count and (is_put_trend_setup or is_put_pullback_setup):
                 if not put_candle_ok:
                     direction = "NO TRADE"
                     reason_parts.append("مردود به دلیل کندل جهشی تند بدون سایه بازگشتی (فروش روی شتاب صعودی ممنوع است).")
@@ -289,10 +299,7 @@ class StrategyEngine:
                 else:
                     direction = "PUT"
                     rule_score = round(min(98.0, 68.0 + (put_agreements * 4.5)), 1)
-                    if is_put_trend_setup:
-                        reason_parts.append("★ ستاپ اسنایپر پولبک روندی: تایید روند نزولی M5/M15، مومنتوم و توافق قوی فیلترها.")
-                    else:
-                        reason_parts.append("★ ستاپ اسنایپر بازگشت از سطح کلیدی: ریجکت سقف، اشباع اسیلاتورها و پرایس‌اکشن تایید شد.")
+                    reason_parts.append("★ سیگنال فروش در جهت روند نزولی کلان (M5/M15): تایید EMA، مومنتوم و توافق قوی فیلترها.")
                     if f10.status == "PASS" and f10.detected_direction == "PUT":
                         reason_parts.append("تاییدیه پول هوشمند (SMC/OrderBlock)")
                     if f11.status == "PASS" and f11.detected_direction == "PUT":
@@ -302,10 +309,10 @@ class StrategyEngine:
                 direction = "NO TRADE"
                 max_agree = max(call_agreements, put_agreements)
                 rule_score = round(min(65.0, max_agree * 11.0), 1)
-                reason_parts.append(f"عدم احراز شرایط ستاپ اسنایپر (توافق فیلترها: {max_agree}/{self.min_agreement_count}). برای حفظ سرمایه سیگنالی صادر نشد.")
+                reason_parts.append(f"عدم احراز شرایط ستاپ هم‌راستا با روند (روند: {f1.detected_direction} | توافق فیلترها: {max_agree}/{self.min_agreement_count}). برای حفظ سرمایه سیگنالی صادر نشد.")
 
         # --- PRE-SIGNAL READINESS DETECTION ---
-        # Trigger alert before full signal when 70-85% ready
+        # Pre-signal MUST ALSO be strictly locked to macro trend:
         is_pre_signal = False
         pre_signal_direction = "NONE"
         readiness_score = 0.0
@@ -317,20 +324,19 @@ class StrategyEngine:
             readiness_score = 100.0
             pre_signal_msg = f"سیگنال قطعی ورود {direction}! آماده اجرای سفارش در ثانیه ۰ ابتدای کندل ۵ دقیقه‌ای باشید."
         else:
-            # Check if close to CALL setup (3 agreements or SMC/Oscillator trigger developing)
-            if (call_agreements >= 3) or (f1.detected_direction == "CALL" and (f10.detected_direction == "CALL" or f11.detected_direction == "CALL")):
+            if f1.status == "PASS" and f1.detected_direction == "CALL" and call_agreements >= 3:
                 is_pre_signal = True
                 pre_signal_direction = "CALL"
                 readiness_score = min(92.0, max(72.0, float(call_agreements * 18.0)))
-                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ صعودی (CALL) در حال شکل‌گیری است! در ثانیه ۰ کندل بعدی آماده ثبت معامله ۵ دقیقه‌ای در کوتکس باشید."
-            elif (put_agreements >= 3) or (f1.detected_direction == "PUT" and (f10.detected_direction == "PUT" or f11.detected_direction == "PUT")):
+                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ صعودی هم‌راستای روند در حال شکل‌گیری است! در ثانیه ۰ کندل بعدی آماده ثبت خرید ۵ دقیقه‌ای باشید."
+            elif f1.status == "PASS" and f1.detected_direction == "PUT" and put_agreements >= 3:
                 is_pre_signal = True
                 pre_signal_direction = "PUT"
                 readiness_score = min(92.0, max(72.0, float(put_agreements * 18.0)))
-                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ نزولی (PUT) در حال شکل‌گیری است! در ثانیه ۰ کندل بعدی آماده ثبت معامله ۵ دقیقه‌ای در کوتکس باشید."
+                pre_signal_msg = f"⚡ هشدار آماده‌باش {symbol}: ستاپ نزولی هم‌راستای روند در حال شکل‌گیری است! در ثانیه ۰ کندل بعدی آماده ثبت فروش ۵ دقیقه‌ای باشید."
             else:
                 readiness_score = round(min(50.0, max(call_agreements, put_agreements) * 10.0), 1)
-                pre_signal_msg = "بازار در حالت نوسان عادی؛ ستاپ اسنایپری فعالی وجود ندارد."
+                pre_signal_msg = "بازار در حالت نوسان عادی یا عدم هم‌راستایی فیلترها با روند؛ ستاپی برای ورود نیست."
 
         decision_reason = " | ".join(reason_parts)
 
